@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IOT_SENTRY | Update OTA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <style>
+        body { background:#0b1326; color:#dae2fd; font-family:'Space Grotesk',sans-serif; }
+        .glass { background:rgba(23,31,51,.75); backdrop-filter:blur(16px); border:1px solid rgba(138,235,255,.08); }
+        .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#859397; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
+        .sidebar-link:hover { background:rgba(138,235,255,.08); color:#8aebff; }
+        .sidebar-link.active { background:rgba(34,211,238,.12); color:#8aebff; border-right:2px solid #8aebff; }
+        .mono { font-family:'JetBrains Mono',monospace; }
+        .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; }
+        input[type=text], select { background:rgba(23,31,51,.9); border:1px solid rgba(255,255,255,.08); border-radius:10px; color:#dae2fd; font-size:13px; padding:10px 14px; width:100%; box-sizing:border-box; }
+        input[type=text]:focus, select:focus { outline:none; border-color:rgba(138,235,255,.4); }
+        .upload-zone { border:2px dashed rgba(138,235,255,.2); border-radius:12px; padding:32px; text-align:center; position:relative; transition:all .2s; cursor:pointer; }
+        .upload-zone:hover { border-color:rgba(138,235,255,.5); background:rgba(138,235,255,.03); }
+        .btn-primary { background:#8aebff; color:#00363e; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.1em; padding:12px 24px; border-radius:10px; border:none; cursor:pointer; width:100%; transition:all .2s; }
+        .btn-primary:hover { filter:brightness(1.1); }
+        .btn-primary:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(1); }
+    </style>
+</head>
+<body>
+
+<!-- Mobile Overlay -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
+    <div style="margin-bottom:32px;padding:0 8px;">
+        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
+        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Node Manager</div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:4px;flex:1;">
+        <a href="/" class="sidebar-link"><span class="ms">dashboard</span>Dashboard</a>
+        <a href="/devices" class="sidebar-link"><span class="ms">developer_board</span>Devices</a>
+        <a href="/analytics/1" class="sidebar-link"><span class="ms">query_stats</span>Analytics</a>
+        <a href="/settings" class="sidebar-link active"><span class="ms">tune</span>Update OTA</a>
+    </nav>
+</aside>
+
+<main class="md:ml-[240px] p-6 md:p-8 min-h-screen">
+    <!-- Mobile Header -->
+    <div class="md:hidden flex justify-between items-center mb-6">
+        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+            <span class="ms">menu</span>
+        </button>
+    </div>
+
+    <header style="margin-bottom:32px;">
+        <h1 style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.02em;">System Configuration</h1>
+        <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">OTA Firmware Management & Settings</p>
+    </header>
+
+    <div class="flex flex-col lg:grid lg:grid-cols-[2fr_1fr] gap-6 items-start">
+        <!-- Left column: Firmware Upload -->
+        <div class="glass" style="border-radius:20px;padding:32px;">
+            <h2 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+                <span class="ms">system_update</span>Firmware Repository
+            </h2>
+
+            <!-- Upload Form -->
+            <form th:action="@{/api/ota/versions}" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Version Tag</label>
+                    <input type="text" name="version" placeholder="e.g. v1.2.0" required/>
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Binary</label>
+                    <div class="upload-zone" id="drop-zone">
+                        <input type="file" name="file" accept=".bin" id="file-input"
+                               style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;" required/>
+                        <span class="ms" style="font-size:40px;color:rgba(138,235,255,.4);display:block;margin-bottom:8px;">upload_file</span>
+                        <p id="file-label" style="color:#859397;font-size:13px;">Click to select .bin file</p>
+                        <p style="color:rgba(133,147,151,.5);font-size:10px;margin-top:4px;">SHA-256 checksum auto-calculated</p>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Upload & Register Firmware</button>
+            </form>
+
+            <!-- Firmware List -->
+            <div th:if="${not #lists.isEmpty(firmwares)}" style="margin-top:32px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px;">
+                <h3 style="font-size:10px;font-weight:700;color:#859397;text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px;">Available Versions</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div th:each="fw : ${firmwares}"
+                         style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:12px;">
+                        <div>
+                            <div class="mono" style="font-size:14px;font-weight:600;color:#8aebff;" th:text="${fw.version}">v1.0.0</div>
+                            <div style="font-size:10px;color:#859397;margin-top:2px;" th:text="${fw.firmwareUrl}">path</div>
+                        </div>
+                        <span style="background:rgba(52,211,153,.1);color:#34d399;font-size:9px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:20px;">AVAILABLE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(firmwares)}" style="margin-top:24px;text-align:center;color:#859397;font-size:13px;">
+                Chưa có firmware. Tải lên file .bin để bắt đầu.
+            </div>
+
+            <!-- Deploy OTA Form -->
+            <div style="margin-top:32px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px;">
+                <h3 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                    <span class="ms">send_to_mobile</span>Deploy OTA Update
+                </h3>
+                <form id="ota-form" method="POST" action="/api/ota/trigger/0" onsubmit="this.action='/api/ota/trigger/' + document.getElementById('deviceIdSelect').value;">
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Target Device</label>
+                        <select id="deviceIdSelect" required th:disabled="${#lists.isEmpty(devices)}">
+                            <option value="" disabled selected th:if="${not #lists.isEmpty(devices)}">Select a device</option>
+                            <option value="" disabled selected th:if="${#lists.isEmpty(devices)}">No devices found</option>
+                            <option th:each="d : ${devices}" th:value="${d.id}" th:text="${d.deviceName}"></option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Version</label>
+                        <select name="firmwareId" required th:disabled="${#lists.isEmpty(firmwares)}">
+                            <option value="" disabled selected th:if="${not #lists.isEmpty(firmwares)}">Select firmware version</option>
+                            <option value="" disabled selected th:if="${#lists.isEmpty(firmwares)}">No firmware available</option>
+                            <option th:each="fw : ${firmwares}" th:value="${fw.id}" th:text="${fw.version}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary" style="background:rgba(52,211,153,.2);color:#34d399;border:1px solid rgba(52,211,153,.4);" th:disabled="${#lists.isEmpty(firmwares) or #lists.isEmpty(devices)}">Push Update</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right column: Info -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="glass" style="border-radius:16px;padding:24px;">
+                <h3 style="font-size:10px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
+                    <span class="ms" style="vertical-align:middle;margin-right:6px;">info</span>OTA Process
+                </h3>
+                <ol style="list-style:decimal;padding-left:20px;display:flex;flex-direction:column;gap:10px;">
+                    <li style="font-size:12px;color:#859397;line-height:1.6;">Upload firmware .bin file tại đây</li>
+                    <li style="font-size:12px;color:#859397;line-height:1.6;">Vào trang <strong style="color:#dae2fd;">Devices</strong>, chọn firmware và nhấn <strong style="color:#8aebff;">OTA</strong></li>
+                    <li style="font-size:12px;color:#859397;line-height:1.6;">Server gửi lệnh qua MQTT đến ESP32</li>
+                    <li style="font-size:12px;color:#859397;line-height:1.6;">ESP32 tải file về, verify SHA256, cập nhật</li>
+                </ol>
+            </div>
+
+            <div class="glass" style="border-radius:16px;padding:24px;">
+                <h3 style="font-size:10px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
+                    <span class="ms" style="vertical-align:middle;margin-right:6px;">api</span>Telemetry API
+                </h3>
+                <div class="mono" style="font-size:11px;color:#8aebff;background:rgba(0,0,0,.4);padding:14px;border-radius:10px;line-height:1.8;">
+                    <div style="color:#859397;">POST</div>
+                    <div>/api/telemetry/{deviceId}</div>
+                    <div style="color:#859397;margin-top:8px;">Body (JSON):</div>
+                    <div>{"temperature": 25.5,</div>
+                    <div>&nbsp;"humidity": 60,</div>
+                    <div>&nbsp;"free_heap": 45000}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('file-input').addEventListener('change', function() {
+        const label = document.getElementById('file-label');
+        if (this.files.length > 0) {
+            label.textContent = this.files[0].name;
+            label.style.color = '#8aebff';
+        }
+    });
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+</script>
+</body>
+</html>

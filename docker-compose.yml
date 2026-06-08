@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Service 1: Cơ sở dữ liệu MySQL
+  db-web-iot:
+    image: mysql:8.0
+    container_name: mysql-iot-web
+    restart: always
+    environment:
+      MYSQL_DATABASE: iot_db
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_USER: duc_user
+      MYSQL_PASSWORD: duc_password_123
+    ports:
+      - "3307:3306"  # Port 3307 để không trùng với MySQL/Postgres của ThingsBoard
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+  # Service 2: Ứng dụng Java (Tạm thời để trống để build sau)
+  java-app:
+    build: ./java-app
+    container_name: iot-java-service
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db-web-iot
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-web-iot:3306/iot_db?useSSL=false
+      - SPRING_DATASOURCE_USERNAME=duc_user
+      - SPRING_DATASOURCE_PASSWORD=duc_password_123

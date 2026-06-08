@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IOT_SENTRY | Devices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <style>
+        body { background: #0b1326; color: #dae2fd; font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(23,31,51,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(138,235,255,0.08); }
+        .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#859397; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
+        .sidebar-link:hover { background:rgba(138,235,255,.08); color:#8aebff; }
+        .sidebar-link.active { background:rgba(34,211,238,.12); color:#8aebff; border-right:2px solid #8aebff; }
+        .status-online { background:rgba(52,211,153,.12); color:#34d399; }
+        .status-offline { background:rgba(239,68,68,.12); color:#f87171; }
+        .card-btn { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); color:#dae2fd; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; text-decoration:none; transition:all .2s; }
+        .card-btn:hover { background:rgba(138,235,255,.15); color:#8aebff; border-color:rgba(138,235,255,.3); }
+        select, button[type=submit] { background: rgba(23,31,51,.9); border: 1px solid rgba(255,255,255,.08); border-radius:8px; color:#dae2fd; font-size:11px; padding:6px 10px; }
+        button[type=submit] { background:rgba(138,235,255,.1); color:#8aebff; cursor:pointer; }
+        button[type=submit]:hover { background:#8aebff; color:#00363e; }
+        .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; display:inline-block; direction:ltr; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<!-- Mobile Overlay -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
+    <div style="margin-bottom:32px;padding:0 8px;">
+        <div style="font-size:18px;font-weight:900;color:#8aebff;letter-spacing:-.03em;">IOT_SENTRY</div>
+        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Node Manager</div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:4px;flex:1;">
+        <a href="/" class="sidebar-link"><span class="ms">dashboard</span>Dashboard</a>
+        <a href="/devices" class="sidebar-link active"><span class="ms">developer_board</span>Devices</a>
+        <a href="/analytics/1" class="sidebar-link"><span class="ms">query_stats</span>Analytics</a>
+        <a href="/settings" class="sidebar-link"><span class="ms">tune</span>Update OTA</a>
+    </nav>
+</aside>
+
+<!-- Main -->
+<main class="md:ml-[240px] p-6 md:p-8 min-h-screen">
+    <!-- Mobile Header -->
+    <div class="md:hidden flex justify-between items-center mb-6">
+        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+            <span class="ms">menu</span>
+        </button>
+    </div>
+
+    <header style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+            <h1 style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.02em;">Device Nodes</h1>
+            <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Network Infrastructure & Management</p>
+        </div>
+        <button onclick="document.getElementById('addDeviceModal').style.display='flex'" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(138,235,255,.1);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(138,235,255,.2)'" onmouseout="this.style.background='rgba(138,235,255,.1)'">
+            <span class="ms" style="font-size:18px;">add</span> Add Device
+        </button>
+    </header>
+
+    <!-- Flash Messages -->
+    <div th:if="${success}" style="margin-bottom:16px;padding:14px 20px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:10px;color:#34d399;font-size:13px;display:flex;align-items:center;gap:10px;">
+        <span class="ms" style="font-size:18px;">check_circle</span>
+        <span th:text="${success}">Success</span>
+    </div>
+    <div th:if="${error}" style="margin-bottom:16px;padding:14px 20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;display:flex;align-items:center;gap:10px;">
+        <span class="ms" style="font-size:18px;">error</span>
+        <span th:text="${error}">Error</span>
+    </div>
+
+    <!-- No firmware warning -->
+    <div th:if="${#lists.isEmpty(firmwares)}" style="margin-bottom:16px;padding:14px 20px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;color:#fbbf24;font-size:12px;display:flex;align-items:center;gap:10px;">
+        <span class="ms" style="font-size:18px;">warning</span>
+        Chưa có firmware. Vào <a href="/settings" style="color:#8aebff;font-weight:700;">Update OTA</a> để upload file .bin trước khi OTA.
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+        <div th:each="device : ${devices}" class="glass" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="width:48px;height:48px;border-radius:12px;background:rgba(138,235,255,.08);border:1px solid rgba(138,235,255,.15);display:flex;align-items:center;justify-content:center;color:#8aebff;">
+                    <span class="ms" style="font-size:28px;" th:text="${device.typeId == 2 ? 'mode_fan' : 'developer_board'}">developer_board</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <div style="text-align:right;">
+                        <span th:class="${device.status != null and device.status.name() == 'ONLINE'} ? 'status-online' : 'status-offline'" style="font-size:9px;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:20px;">
+                            <span th:text="${device.status != null ? device.status : 'OFFLINE'}">ONLINE</span>
+                        </span>
+                        <div style="font-size:10px;color:#859397;margin-top:4px;" th:text="${device.freeHeap != null ? 'RAM: ' + device.freeHeap + 'B' : 'RAM: N/A'}">RAM: N/A</div>
+                    </div>
+                    <div style="display:flex;gap:4px;">
+                        <button type="button" 
+                                th:data-id="${device.id}" 
+                                th:data-name="${device.deviceName}" 
+                                th:data-category="${device.category}" 
+                                th:data-location="${device.location}" 
+                                onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-category'), this.getAttribute('data-location'))" 
+                                style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(251,191,36,.2)'" onmouseout="this.style.background='rgba(251,191,36,.1)'" title="Sửa thiết bị">
+                            <span class="ms" style="font-size:16px;">edit</span>
+                        </button>
+                        <form th:action="'/devices/delete/' + ${device.id}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị này không?');">
+                            <button type="submit" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(239,68,68,.1)'" title="Xóa thiết bị">
+                                <span class="ms" style="font-size:16px;">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <h3 style="font-size:18px;font-weight:700;color:#fff;" th:text="${device.deviceName}">Device Name</h3>
+                    <span th:if="${device.category}" style="font-size:9px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.15);padding:2px 8px;border-radius:20px;" th:text="${device.category}">Category</span>
+                </div>
+                <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;">
+                    <span th:text="${(device.location != null ? device.location : 'N/A')}">Location</span> 
+                    • <span style="color:#a78bfa;font-weight:700;">TOKEN: <span th:text="${device.deviceUid}">UID</span></span>
+                </p>
+            </div>
+
+            <!-- Nav buttons -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <a th:href="'/dashboard/' + ${device.id}" class="card-btn"><span class="ms" style="font-size:16px;">dashboard</span>Dashboard</a>
+                <a th:href="'/analytics/' + ${device.id}" class="card-btn"><span class="ms" style="font-size:16px;">analytics</span>Analysis</a>
+            </div>
+
+            <!-- OTA -->
+            <div style="border-top:1px solid rgba(255,255,255,.05);padding-top:16px;">
+                <a href="/settings" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:rgba(138,235,255,.1);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(138,235,255,.2)'" onmouseout="this.style.background='rgba(138,235,255,.1)'">
+                    <span class="ms" style="font-size:16px;">system_update</span>Update OTA
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(devices)}" style="text-align:center;padding:80px 20px;">
+        <span class="ms" style="font-size:64px;color:rgba(138,235,255,.2);">developer_board</span>
+        <p style="color:#859397;margin-top:16px;font-size:14px;">Chưa có thiết bị nào. Thêm thiết bị qua API hoặc database.</p>
+    </div>
+</main>
+
+<!-- Add Device Modal -->
+<div id="addDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(11,19,38,.8);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:rgba(23,31,51,1);border:1px solid rgba(138,235,255,.15);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,.4);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h2 style="font-size:18px;font-weight:800;color:#fff;">Thêm Thiết Bị Mới</h2>
+            <button type="button" onclick="document.getElementById('addDeviceModal').style.display='none'" style="background:none;border:none;color:#859397;cursor:pointer;"><span class="ms">close</span></button>
+        </div>
+        <form action="/devices/add" method="POST" style="display:flex;flex-direction:column;gap:16px;">
+
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
+                <input type="text" name="deviceName" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" placeholder="e.g. ESP32-Garden" />
+            </div>
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
+                <select name="category" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                    <option value="" disabled selected>Chọn phân loại...</option>
+                    <option value="Vườn" style="background:#0b1326;color:#fff;">Vườn</option>
+                    <option value="Nhà" style="background:#0b1326;color:#fff;">Nhà</option>
+                    <option value="Nhà máy" style="background:#0b1326;color:#fff;">Nhà máy</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
+                <input type="text" name="location" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" placeholder="e.g. Ngoài vườn" />
+            </div>
+            <button type="submit" style="margin-top:8px;width:100%;background:#8aebff;color:#0b1326;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Save Device</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Device Modal -->
+<div id="editDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(11,19,38,.8);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:rgba(23,31,51,1);border:1px solid rgba(138,235,255,.15);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,.4);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h2 style="font-size:18px;font-weight:800;color:#fff;">Sửa Thiết Bị</h2>
+            <button type="button" onclick="document.getElementById('editDeviceModal').style.display='none'" style="background:none;border:none;color:#859397;cursor:pointer;"><span class="ms">close</span></button>
+        </div>
+        <form id="editDeviceForm" method="POST" style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
+                <input type="text" id="editDeviceName" name="deviceName" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+            </div>
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
+                <select id="editCategory" name="category" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                    <option value="" disabled>Chọn phân loại...</option>
+                    <option value="Vườn" style="background:#0b1326;color:#fff;">Vườn</option>
+                    <option value="Nhà" style="background:#0b1326;color:#fff;">Nhà</option>
+                    <option value="Nhà máy" style="background:#0b1326;color:#fff;">Nhà máy</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
+                <input type="text" id="editLocation" name="location" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+            </div>
+            <button type="submit" style="margin-top:8px;width:100%;background:#fbbf24;color:#0b1326;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Update Device</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Sidebar Toggle
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
+
+function openEditModal(id, name, category, location) {
+    document.getElementById('editDeviceForm').action = '/devices/edit/' + id;
+    document.getElementById('editDeviceName').value = name;
+    document.getElementById('editCategory').value = category;
+    document.getElementById('editLocation').value = location;
+    document.getElementById('editDeviceModal').style.display = 'flex';
+}
+</script>
+
+</body>
+</html>
