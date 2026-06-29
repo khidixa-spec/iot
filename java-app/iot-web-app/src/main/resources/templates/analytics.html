@@ -244,7 +244,19 @@
                 type: 'line',
                 stacked: false,
                 background: 'transparent',
-                toolbar: { show: false },
+                toolbar: { 
+                    show: true,
+                    tools: {
+                        download: false,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    },
+                    autoSelected: 'pan' 
+                },
                 events: {
                     zoomed: handleZoom,
                     scrolled: handleZoom
@@ -329,7 +341,19 @@
                 type: 'area',
                 height: 250,
                 background: 'transparent',
-                toolbar: { show: false },
+                toolbar: { 
+                    show: true,
+                    tools: {
+                        download: false,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    },
+                    autoSelected: 'pan' 
+                },
                 events: {
                     zoomed: handleZoom,
                     scrolled: handleZoom
@@ -514,6 +538,12 @@
         sidebar.classList.toggle('-translate-x-full');
         overlay.classList.toggle('hidden');
     }
+
+    // Auto-apply initial time filter
+    setTimeout(() => {
+        const activeBtn = document.querySelector('.time-filter.active');
+        if(activeBtn) activeBtn.click();
+    }, 100);
 </script>
 </body>
 </html>
