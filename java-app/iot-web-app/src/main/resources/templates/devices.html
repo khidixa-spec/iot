@@ -121,6 +121,9 @@
                     <span th:text="${(device.location != null ? device.location : 'N/A')}">Location</span> 
                     • <span style="color:#a78bfa;font-weight:700;">TOKEN: <span th:text="${device.deviceUid}">UID</span></span>
                 </p>
+                <div style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.2);border:1px solid rgba(52,211,153,.2);border-radius:6px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;word-break:break-all;">
+                    MQTT Topic: iot/sensor/data/<span th:text="${device.deviceUid}"></span>
+                </div>
             </div>
 
             <!-- Nav buttons -->

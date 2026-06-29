@@ -103,32 +103,42 @@
 
     <!-- Core Metrics Grid -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;">
-        <!-- System metrics (Always visible to avoid empty look) -->
+        <!-- Relay Controls -->
         <div class="glass metric-card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div style="width:40px;height:40px;border-radius:10px;background:rgba(167,139,250,.1);color:#a78bfa;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-                    <span class="ms">memory</span>
+                <div style="width:40px;height:40px;border-radius:10px;background:rgba(244,63,94,.1);color:#f43f5e;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                    <span class="ms">power</span>
                 </div>
-                <span style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">Free RAM</span>
+                <span style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">Relay 1 (Máy Bơm)</span>
             </div>
-            <div>
-                <div class="mono" id="metric-free_heap" style="font-size:36px;font-weight:900;color:#fff;" th:text="${device.freeHeap != null ? device.freeHeap : '--'}">--</div>
-                <div style="font-size:12px;color:#859397;margin-top:4px;">bytes available</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div class="mono" id="status-relay1" style="font-size:24px;font-weight:900;color:#fff;">OFF</div>
+                    <div style="font-size:12px;color:#859397;margin-top:4px;">Nhấn để bật/tắt máy bơm</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="toggle-relay1" class="sr-only peer" onchange="toggleRelay(1, this.checked)">
+                  <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
             </div>
         </div>
         
         <div class="glass metric-card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div style="width:40px;height:40px;border-radius:10px;background:rgba(56,189,248,.1);color:#38bdf8;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-                    <span class="ms">wifi</span>
+                <div style="width:40px;height:40px;border-radius:10px;background:rgba(52,211,153,.1);color:#34d399;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                    <span class="ms">water_drop</span>
                 </div>
-                <span style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">WiFi Signal</span>
+                <span style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">Relay 2 (Van Nước)</span>
             </div>
-            <div>
-                <div class="mono" style="font-size:36px;font-weight:900;color:#fff;">
-                    <span id="metric-wifi_rssi" th:text="${device.wifiRssi != null ? device.wifiRssi : '--'}">--</span><span style="font-size:16px;color:#859397;margin-left:4px;" th:if="${device.wifiRssi != null}">dBm</span>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div class="mono" id="status-relay2" style="font-size:24px;font-weight:900;color:#fff;">OFF</div>
+                    <div style="font-size:12px;color:#859397;margin-top:4px;">Nhấn để đóng/mở van</div>
                 </div>
-                <div style="font-size:12px;color:#859397;margin-top:4px;">signal strength (RSSI)</div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="toggle-relay2" class="sr-only peer" onchange="toggleRelay(2, this.checked)">
+                  <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
             </div>
         </div>
         
@@ -247,6 +257,36 @@
 <script th:inline="javascript">
     const deviceId = /*[[${device.id}]]*/ 0;
     
+    function toggleRelay(relayId, isChecked) {
+        const statusText = document.getElementById(`status-relay${relayId}`);
+        const originalText = statusText.innerText;
+        
+        statusText.innerText = isChecked ? 'ON' : 'OFF';
+        statusText.style.color = isChecked ? (relayId === 1 ? '#f43f5e' : '#10b981') : '#fff';
+        
+        fetch(`/api/device/${deviceId}/control`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                relay: relayId,
+                state: isChecked ? 'ON' : 'OFF'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Command sent:', data);
+        })
+        .catch(error => {
+            console.error('Error sending command:', error);
+            document.getElementById(`toggle-relay${relayId}`).checked = !isChecked;
+            statusText.innerText = originalText;
+            statusText.style.color = '#fff';
+            alert("Lỗi khi gửi lệnh điều khiển. Vui lòng kiểm tra kết nối mạng.");
+        });
+    }
+    
     // WebSocket Setup
     const socket = new SockJS('/ws-iot');
     const stompClient = Stomp.over(socket);
@@ -267,6 +307,24 @@
             line.innerHTML = `<span style="color:#859397;">[${ts}]</span> <span style="color:#34d399;">RECV</span> ${JSON.stringify(cleanData)}`;
             stream.insertBefore(line, stream.firstChild);
             if (stream.children.length > 50) stream.removeChild(stream.lastChild);
+            
+            // Update time metrics
+            const now = new Date();
+            const dateEl = document.getElementById('metric-receive_date');
+            if (dateEl) {
+                const dd = String(now.getDate()).padStart(2, '0');
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const yyyy = now.getFullYear();
+                dateEl.innerText = `${dd}/${mm}/${yyyy}`;
+            }
+            
+            const timeEl = document.getElementById('metric-receive_time');
+            if (timeEl) {
+                const hh = String(now.getHours()).padStart(2, '0');
+                const min = String(now.getMinutes()).padStart(2, '0');
+                const ss = String(now.getSeconds()).padStart(2, '0');
+                timeEl.innerText = `${hh}:${min}:${ss}`;
+            }
             
             // Update UI metrics in real-time
             for (const [key, val] of Object.entries(cleanData)) {

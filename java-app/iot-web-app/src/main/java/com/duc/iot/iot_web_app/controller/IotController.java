@@ -1,5 +1,23 @@
 package com.duc.iot.iot_web_app.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.duc.iot.iot_web_app.model.Device;
 import com.duc.iot.iot_web_app.model.Sensor;
 import com.duc.iot.iot_web_app.model.SensorReading;
@@ -7,26 +25,22 @@ import com.duc.iot.iot_web_app.repository.DeviceRepository;
 import com.duc.iot.iot_web_app.repository.FirmwareVersionRepository;
 import com.duc.iot.iot_web_app.repository.SensorReadingRepository;
 import com.duc.iot.iot_web_app.repository.SensorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 @Controller
 public class IotController {
 
-    @Autowired private SensorRepository sensorRepository;
-    @Autowired private SimpMessagingTemplate messagingTemplate;
-    @Autowired private DeviceRepository deviceRepository;
-    @Autowired private SensorReadingRepository readingRepository;
-    @Autowired private FirmwareVersionRepository firmwareRepository;
+    @Autowired
+    private SensorRepository sensorRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private DeviceRepository deviceRepository;
+    @Autowired
+    private SensorReadingRepository readingRepository;
+    @Autowired
+    private FirmwareVersionRepository firmwareRepository;
 
     // --- TRANG WEB ---
-
     @GetMapping("/")
     public String home(Model model) {
         List<Device> devices = deviceRepository.findAll();
@@ -49,13 +63,15 @@ public class IotController {
     @GetMapping("/dashboard/{id}")
     public String dashboard(@PathVariable Long id, Model model) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
-        if (deviceOpt.isEmpty()) return "redirect:/devices";
+        if (deviceOpt.isEmpty()) {
+            return "redirect:/devices";
+        }
         Device device = deviceOpt.get();
         List<Sensor> sensors = device.getSensors() != null ? device.getSensors() : new ArrayList<>();
         Map<String, Double> latestReadings = new LinkedHashMap<>();
         for (Sensor s : sensors) {
             List<SensorReading> readings = readingRepository
-                .findTop10BySensorIdOrderByRecordedAtDesc(s.getId());
+                    .findTop10BySensorIdOrderByRecordedAtDesc(s.getId());
             if (!readings.isEmpty()) {
                 latestReadings.put(s.getSensorName(), readings.get(0).getRawValue());
             }
@@ -68,9 +84,9 @@ public class IotController {
 
     @PostMapping("/devices/add")
     public String addDevice(@RequestParam String deviceName,
-                            @RequestParam String category,
-                            @RequestParam String location,
-                            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            @RequestParam String category,
+            @RequestParam String location,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             Device device = new Device();
             String generatedToken = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 20);
@@ -101,10 +117,10 @@ public class IotController {
 
     @PostMapping("/devices/edit/{id}")
     public String editDevice(@PathVariable Long id,
-                             @RequestParam String deviceName,
-                             @RequestParam String category,
-                             @RequestParam String location,
-                             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            @RequestParam String deviceName,
+            @RequestParam String category,
+            @RequestParam String location,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             Optional<Device> deviceOpt = deviceRepository.findById(id);
             if (deviceOpt.isPresent()) {
@@ -126,9 +142,30 @@ public class IotController {
     @GetMapping("/analytics/{id}")
     public String analytics(@PathVariable Long id, Model model) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
-        if (deviceOpt.isEmpty()) return "redirect:/devices";
+        if (deviceOpt.isEmpty()) {
+            return "redirect:/devices";
+        }
         Device device = deviceOpt.get();
         List<Sensor> sensors = device.getSensors() != null ? device.getSensors() : new ArrayList<>();
+
+        Map<String, List<Object[]>> historicalData = new LinkedHashMap<>();
+        for (Sensor s : sensors) {
+            List<SensorReading> readings = readingRepository.findTop1000BySensorIdOrderByRecordedAtDesc(s.getId());
+            List<Object[]> sensorData = new ArrayList<>();
+            // ApexCharts needs oldest first
+            for (int i = readings.size() - 1; i >= 0; i--) {
+                SensorReading r = readings.get(i);
+                long timestamp = r.getRecordedAt().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+                sensorData.add(new Object[]{timestamp, r.getRawValue()});
+            }
+            historicalData.put(s.getSensorName(), sensorData);
+        }
+        try {
+            model.addAttribute("historicalDataJson", new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(historicalData));
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            model.addAttribute("historicalDataJson", "{}");
+        }
+
         model.addAttribute("device", device);
         model.addAttribute("sensors", sensors);
         return "analytics";
@@ -142,11 +179,33 @@ public class IotController {
     }
 
     // --- APIs ---
-
     @GetMapping("/api/status")
     @ResponseBody
     public String checkStatus() {
         return "IoT System Ready!";
+    }
+
+    @Autowired
+    private com.duc.iot.iot_web_app.service.MqttService mqttService;
+
+    @PostMapping("/api/device/{id}/control")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> controlDevice(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        Optional<Device> deviceOpt = deviceRepository.findById(id);
+        if (deviceOpt.isPresent()) {
+            Device device = deviceOpt.get();
+            // Topic expected by ESP32 to receive commands
+            String topic = "iot/device/control/" + device.getDeviceUid();
+            
+            try {
+                String jsonPayload = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(payload);
+                mqttService.publishCommand(topic, jsonPayload);
+                return org.springframework.http.ResponseEntity.ok().body(Map.of("status", "success", "message", "Command sent"));
+            } catch (com.fasterxml.jackson.core.JsonProcessingException | RuntimeException e) {
+                return org.springframework.http.ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
+            }
+        }
+        return org.springframework.http.ResponseEntity.notFound().build();
     }
 
     @GetMapping("/api/devices/all")
@@ -155,59 +214,68 @@ public class IotController {
         return deviceRepository.findAll();
     }
 
-
-
     @PostMapping("/api/v1/{deviceToken}/telemetry")
     @ResponseBody
     @org.springframework.transaction.annotation.Transactional
     public String receiveTelemetry(@PathVariable String deviceToken, @RequestBody Map<String, Object> data) {
         Optional<Device> deviceOpt = deviceRepository.findByDeviceUid(deviceToken);
-        if (deviceOpt.isEmpty()) return "Error: Invalid Access Token!";
+        if (deviceOpt.isEmpty()) {
+            return "Error: Invalid Access Token!";
+        }
         Device device = deviceOpt.get();
         Long deviceId = device.getId();
-
-        Set<String> systemFields = Set.of(
-            "hardware_version", "free_heap", "wifi_rssi", "uptime",
-            "reboot_count", "last_reboot_reason", "mqtt_connected"
-        );
+        LocalDateTime payloadTime = LocalDateTime.now();
 
         data.forEach((key, value) -> {
-            if (value == null) return;
+            if (value == null) {
+                return;
+            }
 
             switch (key) {
-                case "hardware_version" -> device.setHardwareVersion(value.toString());
-                case "free_heap" -> device.setFreeHeap(((Number) value).intValue());
-                case "wifi_rssi" -> device.setWifiRssi(((Number) value).intValue());
-                case "uptime" -> device.setUptime(((Number) value).longValue());
-                case "reboot_count" -> device.setRebootCount(((Number) value).intValue());
-                case "last_reboot_reason" -> device.setLastRebootReason(value.toString());
-                case "mqtt_connected" -> device.setMqttConnected(Boolean.parseBoolean(value.toString()));
+                case "hardware_version" ->
+                    device.setHardwareVersion(value.toString());
+                case "free_heap" ->
+                    device.setFreeHeap(((Number) value).intValue());
+                case "wifi_rssi" ->
+                    device.setWifiRssi(((Number) value).intValue());
+                case "uptime" ->
+                    device.setUptime(((Number) value).longValue());
+                case "reboot_count" ->
+                    device.setRebootCount(((Number) value).intValue());
+                case "last_reboot_reason" ->
+                    device.setLastRebootReason(value.toString());
+                case "mqtt_connected" ->
+                    device.setMqttConnected(Boolean.valueOf(String.valueOf(value)));
                 default -> {
                     // Xử lý sensor readings
                     double numVal;
                     try {
                         numVal = value instanceof Number
-                            ? ((Number) value).doubleValue()
-                            : Double.parseDouble(value.toString());
-                    } catch (Exception e) {
+                                ? ((Number) value).doubleValue()
+                                : Double.parseDouble((String) value);
+                    } catch (NumberFormatException | ClassCastException e) {
                         return; // bỏ qua chuỗi không phải số
                     }
 
                     Sensor sensor = sensorRepository.findBySensorNameAndDevice_Id(key, deviceId)
-                        .orElseGet(() -> {
-                            Sensor s = new Sensor();
-                            s.setSensorName(key);
-                            s.setDevice(device);
-                            s.setSensorType(Sensor.SensorType.CUSTOM);
-                            if (key.toLowerCase().contains("temp")) s.setSensorType(Sensor.SensorType.TEMPERATURE);
-                            else if (key.toLowerCase().contains("humi")) s.setSensorType(Sensor.SensorType.HUMIDITY);
-                            return sensorRepository.save(s);
-                        });
+                            .orElseGet(() -> {
+                                Sensor s = new Sensor();
+                                s.setSensorName(key);
+                                s.setDevice(device);
+                                s.setSensorType(Sensor.SensorType.CUSTOM);
+                                if (key.toLowerCase().contains("temp")) {
+                                    s.setSensorType(Sensor.SensorType.TEMPERATURE); 
+                                }else if (key.toLowerCase().contains("humi")) {
+                                    s.setSensorType(Sensor.SensorType.HUMIDITY);
+                                }
+                                return sensorRepository.save(s);
+                            });
 
                     SensorReading reading = new SensorReading();
                     reading.setSensor(sensor);
                     reading.setRawValue(numVal);
                     reading.setFilteredValue(numVal);
+                    reading.setRecordedAt(payloadTime);
                     readingRepository.save(reading);
                 }
             }
@@ -222,5 +290,57 @@ public class IotController {
         messagingTemplate.convertAndSend("/topic/telemetry-updates", (Object) data);
 
         return "OK";
+    }
+
+    @GetMapping("/api/export/{deviceId}/csv")
+    public void exportCsv(@PathVariable Long deviceId, jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        Optional<Device> deviceOpt = deviceRepository.findById(deviceId);
+        if (deviceOpt.isEmpty()) {
+            response.sendError(404, "Device not found");
+            return;
+        }
+
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"device_" + deviceId + "_data.csv\"");
+
+        java.io.PrintWriter writer = response.getWriter();
+        writer.write('\ufeff'); // UTF-8 BOM for Excel
+
+        // Cấu trúc cột như yêu cầu: Ngày, Thời gian, Tên cảm biến, Độ ẩm đất, Độ ẩm không khí, Nhiệt độ
+        writer.println("Ngày,Thời gian,Tên cảm biến,Độ ẩm đất,Độ ẩm không khí,Nhiệt độ");
+
+        Device device = deviceOpt.get();
+        if (device.getSensors() != null) {
+            // Group readings by time (truncate to seconds to match readings that arrived together)
+            java.util.Map<java.time.LocalDateTime, java.util.Map<String, Double>> groupedReadings = new java.util.TreeMap<>(java.util.Collections.reverseOrder());
+
+            for (Sensor s : device.getSensors()) {
+                List<SensorReading> readings = readingRepository.findBySensorIdOrderByRecordedAtDesc(s.getId());
+                for (SensorReading r : readings) {
+                    // Group into 5-second buckets to align slightly off timestamps
+                    int secondBucket = (r.getRecordedAt().getSecond() / 5) * 5;
+                    java.time.LocalDateTime timeKey = r.getRecordedAt().withNano(0).withSecond(secondBucket);
+                    groupedReadings.putIfAbsent(timeKey, new java.util.HashMap<>());
+                    groupedReadings.get(timeKey).put(s.getSensorName(), r.getRawValue());
+                }
+            }
+
+            java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+            String deviceName = device.getDeviceName() != null ? device.getDeviceName() : "Unknown";
+
+            for (java.util.Map.Entry<java.time.LocalDateTime, java.util.Map<String, Double>> entry : groupedReadings.entrySet()) {
+                String dateStr = entry.getKey().format(dateFormatter);
+                String timeStr = entry.getKey().format(timeFormatter);
+                java.util.Map<String, Double> vals = entry.getValue();
+
+                String soil = vals.containsKey("Độ ẩm đất") ? String.valueOf(vals.get("Độ ẩm đất")) : "";
+                String hum = vals.containsKey("Độ ẩm không khí") ? String.valueOf(vals.get("Độ ẩm không khí")) : "";
+                String temp = vals.containsKey("Nhiệt độ") ? String.valueOf(vals.get("Nhiệt độ")) : "";
+
+                writer.println(dateStr + "," + timeStr + "," + deviceName + "," + soil + "," + hum + "," + temp);
+            }
+        }
+        writer.flush();
     }
 }

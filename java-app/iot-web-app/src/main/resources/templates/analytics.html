@@ -7,17 +7,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    
+    <!-- SockJS & STOMP for real-time -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ApexCharts for Advanced Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <style>
-        body { background:#0b1326; color:#dae2fd; font-family:'Space Grotesk',sans-serif; }
+        body { background:#0b1326; color:#dae2fd; font-family:'Space Grotesk',sans-serif; min-height: 100vh;}
         .glass { background:rgba(23,31,51,.75); backdrop-filter:blur(16px); border:1px solid rgba(138,235,255,.08); }
         .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#859397; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
         .sidebar-link:hover { background:rgba(138,235,255,.08); color:#8aebff; }
         .sidebar-link.active { background:rgba(34,211,238,.12); color:#8aebff; border-right:2px solid #8aebff; }
         .mono { font-family:'JetBrains Mono',monospace; }
         .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; }
+        
+        .stat-badge { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px 10px; font-size: 11px; color: #859397; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-badge span { color: #fff; font-weight: 700; margin-left: 4px; }
+        
+        .time-filter { padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; color: #859397; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;}
+        .time-filter.active { background: rgba(138,235,255,.1); color: #8aebff; border-color: rgba(138,235,255,.2); }
+        .time-filter:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        /* Customizing ApexCharts Tooltip for Dark Theme */
+        .apexcharts-tooltip {
+            background: rgba(11, 19, 38, 0.95) !important;
+            border: 1px solid rgba(138,235,255,.15) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+        }
+        .apexcharts-tooltip-title {
+            background: rgba(0,0,0,0.3) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            padding: 8px 12px !important;
+        }
+        .apexcharts-text tspan {
+            font-family: 'Space Grotesk', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -28,7 +60,7 @@
 <aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Node Manager</div>
+        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Advanced Analytics</div>
     </div>
     <nav style="display:flex;flex-direction:column;gap:4px;flex:1;">
         <a href="/" class="sidebar-link"><span class="ms">dashboard</span>Dashboard</a>
@@ -51,104 +83,307 @@
     </div>
 
     <!-- Header -->
-    <div style="margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+    <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
         <div>
-            <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-bottom:8px;">Analytics for</p>
-            <h1 style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.02em;" th:text="${device.deviceName}">Device</h1>
-            <p style="font-size:11px;color:#859397;margin-top:4px;"
-               th:text="${(device.category != null ? device.category : '') + ' • ' + (device.location != null ? device.location : '')}">Category • Location</p>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                <span class="ms" style="color:#8aebff;font-size:28px;">insights</span>
+                <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Advanced Analytics</p>
+            </div>
+            <h1 style="font-size:36px;font-weight:900;color:#fff;letter-spacing:-.02em;" th:text="${device.deviceName}">Device</h1>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:12px;align-items:center;">
+            <div class="glass" style="display:flex;padding:4px;border-radius:10px;">
+                <div class="time-filter">1H</div>
+                <div class="time-filter active">24H</div>
+                <div class="time-filter">7D</div>
+                <div class="time-filter"><span class="ms" style="font-size:14px;vertical-align:middle;">calendar_month</span></div>
+            </div>
+            <a th:href="'/api/export/' + ${device.id} + '/csv'" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
+                <span class="ms" style="font-size:16px;">download</span>Xuất Excel
+            </a>
             <a th:href="'/dashboard/' + ${device.id}" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
-                <span class="ms" style="font-size:16px;">dashboard</span>Dashboard
+                <span class="ms" style="font-size:16px;">dashboard</span>Live Dash
             </a>
         </div>
     </div>
 
-    <!-- System Metrics -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px;">
-        <div class="glass" style="border-radius:14px;padding:20px;border-left:3px solid #8aebff;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;">Thời gian</div>
-                <div class="mono" style="font-size:10px;font-weight:600;color:#8aebff;" id="metric-receive_date" th:text="${device.lastSeen != null ? #temporals.format(device.lastSeen, 'dd/MM/yyyy') : '--'}">--</div>
-            </div>
-            <div class="mono" style="font-size:28px;font-weight:600;color:#fff;" id="metric-receive_time" th:text="${device.lastSeen != null ? #temporals.format(device.lastSeen, 'HH:mm:ss') : '--'}">--</div>
-        </div>
-        <div class="glass" style="border-radius:14px;padding:20px;border-left:3px solid #34d399;">
-            <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px;">Free RAM</div>
-            <div class="mono" style="font-size:28px;font-weight:600;color:#fff;" id="metric-free_heap" th:text="${device.freeHeap != null ? device.freeHeap + 'B' : 'N/A'}">N/A</div>
-        </div>
-        <div class="glass" style="border-radius:14px;padding:20px;border-left:3px solid #f59e0b;">
-            <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px;">WiFi RSSI</div>
-            <div class="mono" style="font-size:28px;font-weight:600;color:#fff;" id="metric-wifi_rssi" th:text="${device.wifiRssi != null ? device.wifiRssi + ' dBm' : 'N/A'}">N/A</div>
-        </div>
-        <div class="glass" style="border-radius:14px;padding:20px;border-left:3px solid #a78bfa;">
-            <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px;">Reboots</div>
-            <div class="mono" style="font-size:28px;font-weight:600;color:#fff;" id="metric-reboot_count" th:text="${device.rebootCount != null ? device.rebootCount : '0'}">0</div>
-        </div>
-    </div>
-
-    <!-- Sensor Charts -->
     <div th:if="${not #lists.isEmpty(sensors)}">
-        <h2 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
-            <span class="ms" style="vertical-align:middle;margin-right:8px;">monitoring</span>Sensor Trend Charts
-        </h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:20px;">
-            <div th:each="sensor : ${sensors}" class="glass" style="border-radius:16px;padding:24px;">
-                <div style="font-size:11px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px;" th:text="${sensor.sensorName}">Sensor</div>
-                <canvas th:id="'chart-' + ${sensor.id}" height="120"></canvas>
+        <!-- Multi-Axis Chart: Temp & Humidity -->
+        <div class="glass" style="border-radius:20px;padding:24px;margin-bottom:24px;position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
+                <div>
+                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Môi trường (Nhiệt độ & Độ ẩm)</h2>
+                    <p style="font-size:12px;color:#859397;margin-top:4px;">Tương quan nghịch biến giữa nhiệt độ và độ ẩm không khí</p>
+                </div>
+                <!-- Quick Stats for Env -->
+                <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-env">
+                    <div class="stat-badge">Nhiệt độ Max: <span id="stat-temp-max">--</span>°C</div>
+                    <div class="stat-badge">Nhiệt độ Min: <span id="stat-temp-min">--</span>°C</div>
+                    <div class="stat-badge">Độ ẩm Max: <span id="stat-hum-max">--</span>%</div>
+                </div>
             </div>
+            
+            <div id="chart-environment" style="min-height: 350px;"></div>
+        </div>
+
+        <!-- Soil Moisture Chart -->
+        <div class="glass" style="border-radius:20px;padding:24px;position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
+                <div>
+                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Độ ẩm đất (Tưới tiêu)</h2>
+                    <p style="font-size:12px;color:#859397;margin-top:4px;">Theo dõi tình trạng khô hạn của đất để kích hoạt máy bơm</p>
+                </div>
+                <!-- Quick Stats for Soil -->
+                <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-soil">
+                    <div class="stat-badge">Trung bình: <span id="stat-soil-avg">--</span>%</div>
+                    <div class="stat-badge">Trạng thái: <span id="stat-soil-status" style="color:#10b981;">--</span></div>
+                </div>
+            </div>
+            
+            <div id="chart-soil" style="min-height: 250px;"></div>
         </div>
     </div>
 
     <!-- No sensors -->
     <div th:if="${#lists.isEmpty(sensors)}" class="glass" style="border-radius:16px;padding:60px;text-align:center;">
-        <span class="ms" style="font-size:56px;color:rgba(138,235,255,.2);">sensors</span>
-        <p style="color:#859397;margin-top:16px;">Chưa có dữ liệu cảm biến. Gửi telemetry từ thiết bị để xem biểu đồ.</p>
-        <div class="mono" style="font-size:11px;color:#859397;margin-top:16px;background:rgba(0,0,0,.3);padding:16px;border-radius:10px;text-align:left;max-width:480px;margin:16px auto 0;">
-            <div style="color:#8aebff;">POST /api/telemetry/<span th:text="${device.id}">0</span></div>
-            <div style="color:#859397;margin-top:8px;">{"temperature": 25.5, "humidity": 60}</div>
-        </div>
+        <span class="ms" style="font-size:56px;color:rgba(138,235,255,.2);">monitoring</span>
+        <p style="color:#859397;margin-top:16px;">Chưa có dữ liệu cảm biến. Đang chờ thiết bị gửi Telemetry...</p>
     </div>
 </main>
 
 <script th:inline="javascript">
     const deviceId = /*[[${device.id}]]*/ 0;
-    const sensors = /*[[${sensors}]]*/ [];
-    const charts = {}; // Store chart instances
     
-    // Initialize Charts
-    sensors.forEach(function(sensor) {
-        const canvas = document.getElementById('chart-' + sensor.id);
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        charts[sensor.sensorName] = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array(120).fill(''),
-                datasets: [{
-                    label: sensor.sensorName,
-                    data: Array(120).fill(null),
-                    borderColor: '#8aebff',
-                    backgroundColor: 'rgba(138,235,255,.05)',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointBackgroundColor: '#8aebff',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#859397', font: { size: 10 } } },
-                    y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#859397', font: { size: 10 } } }
-                },
-                animation: { duration: 0 } // Disable animation for smoother real-time feel
+    // Parse the historical data JSON passed from the controller
+    const historicalDataRaw = /*[[${historicalDataJson}]]*/ '{}';
+    let histData = {};
+    try {
+        histData = JSON.parse(historicalDataRaw);
+    } catch(e) { console.error("Could not parse historical data"); }
+
+    // Helper to safely extract series data
+    function getSeriesData(sensorName) {
+        return histData[sensorName] || [];
+    }
+
+    const tempSeries = getSeriesData('Nhiệt độ');
+    const humSeries = getSeriesData('Độ ẩm không khí');
+    const soilSeries = getSeriesData('Độ ẩm đất');
+
+    // Calculate Quick Stats
+    function updateStats() {
+        if (tempSeries.length > 0) {
+            const temps = tempSeries.map(item => item[1]);
+            document.getElementById('stat-temp-max').innerText = Math.max(...temps).toFixed(1);
+            document.getElementById('stat-temp-min').innerText = Math.min(...temps).toFixed(1);
+        }
+        if (humSeries.length > 0) {
+            const hums = humSeries.map(item => item[1]);
+            document.getElementById('stat-hum-max').innerText = Math.max(...hums).toFixed(1);
+        }
+        if (soilSeries.length > 0) {
+            const soils = soilSeries.map(item => item[1]);
+            const avg = (soils.reduce((a,b) => a+b, 0) / soils.length).toFixed(1);
+            document.getElementById('stat-soil-avg').innerText = avg;
+            
+            const statusEl = document.getElementById('stat-soil-status');
+            if (avg < 30) {
+                statusEl.innerText = 'Khô hạn (Cần tưới)';
+                statusEl.style.color = '#ef4444';
+            } else {
+                statusEl.innerText = 'Đủ nước';
+                statusEl.style.color = '#10b981';
             }
-        });
-    });
+        }
+    }
+    
+    let envChart, soilChart;
+    let activeTimeFilter = '24H';
+    let manualZoomMin = undefined;
+    let manualZoomMax = undefined;
+    let isProgrammaticZoom = false;
+
+    function handleZoom(chartContext, { xaxis }) {
+        if (isProgrammaticZoom) return;
+        if (!xaxis.min && !xaxis.max) {
+            activeTimeFilter = undefined;
+            manualZoomMin = undefined;
+            manualZoomMax = undefined;
+        } else {
+            activeTimeFilter = undefined;
+            manualZoomMin = xaxis.min;
+            manualZoomMax = xaxis.max;
+            document.querySelectorAll('.time-filter').forEach(btn => btn.classList.remove('active'));
+        }
+    }
+
+    if (Object.keys(histData).length > 0) {
+        updateStats();
+
+        // 1. Environment Chart (Multi-Axis)
+        var envOptions = {
+            series: [{
+                name: 'Nhiệt độ',
+                type: 'line',
+                data: tempSeries
+            }, {
+                name: 'Độ ẩm không khí',
+                type: 'area',
+                data: humSeries
+            }],
+            chart: {
+                height: 350,
+                type: 'line',
+                stacked: false,
+                background: 'transparent',
+                toolbar: { show: false },
+                events: {
+                    zoomed: handleZoom,
+                    scrolled: handleZoom
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'linear',
+                    dynamicAnimation: { speed: 1000 }
+                }
+            },
+            stroke: {
+                width: [3, 3],
+                curve: 'smooth'
+            },
+            colors: ['#f97316', '#38bdf8'],
+            fill: {
+                type: ['solid', 'gradient'],
+                gradient: {
+                    shadeIntensity: 1,
+                    inverseColors: false,
+                    opacityFrom: 0.65,
+                    opacityTo: 0.15,
+                    stops: [0, 100]
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    style: { colors: '#859397', fontFamily: "'JetBrains Mono', monospace" },
+                    datetimeUTC: false
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                tooltip: { enabled: false }
+            },
+            yaxis: [
+                {
+                    seriesName: 'Nhiệt độ',
+                    axisTicks: { show: false },
+                    axisBorder: { show: false },
+                    labels: {
+                        style: { colors: '#f97316' },
+                        formatter: function(val) { return val.toFixed(1) + " °C"; }
+                    },
+                    title: { text: "Nhiệt độ", style: { color: '#f97316', fontWeight: 600 } }
+                },
+                {
+                    seriesName: 'Độ ẩm không khí',
+                    opposite: true,
+                    axisTicks: { show: false },
+                    axisBorder: { show: false },
+                    labels: {
+                        style: { colors: '#38bdf8' },
+                        formatter: function(val) { return val.toFixed(1) + " %"; }
+                    },
+                    title: { text: "Độ ẩm", style: { color: '#38bdf8', fontWeight: 600 } }
+                }
+            ],
+            grid: {
+                borderColor: 'rgba(255,255,255,0.05)',
+                strokeDashArray: 4
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'right',
+                labels: { colors: '#dae2fd' }
+            },
+            theme: { mode: 'dark' }
+        };
+
+        envChart = new ApexCharts(document.querySelector("#chart-environment"), envOptions);
+        envChart.render();
+
+        // 2. Soil Chart
+        var soilOptions = {
+            series: [{
+                name: 'Độ ẩm đất',
+                data: soilSeries
+            }],
+            chart: {
+                type: 'area',
+                height: 250,
+                background: 'transparent',
+                toolbar: { show: false },
+                events: {
+                    zoomed: handleZoom,
+                    scrolled: handleZoom
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'linear',
+                    dynamicAnimation: { speed: 1000 }
+                }
+            },
+            colors: ['#10b981'],
+            stroke: { width: 2, curve: 'smooth' },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.5,
+                    opacityTo: 0.05,
+                    stops: [0, 100]
+                }
+            },
+            dataLabels: { enabled: false },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    style: { colors: '#859397', fontFamily: "'JetBrains Mono', monospace" },
+                    datetimeUTC: false
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                min: 0,
+                max: 100,
+                labels: {
+                    style: { colors: '#10b981' },
+                    formatter: function(val) { return val.toFixed(0) + "%"; }
+                }
+            },
+            annotations: {
+                yaxis: [
+                    {
+                        y: 30, // Threshold
+                        borderColor: '#ef4444',
+                        strokeDashArray: 5,
+                        label: {
+                            borderColor: '#ef4444',
+                            style: { color: '#fff', background: '#ef4444' },
+                            text: 'Ngưỡng cảnh báo khô (<30%)'
+                        }
+                    }
+                ]
+            },
+            grid: {
+                borderColor: 'rgba(255,255,255,0.05)',
+                strokeDashArray: 4
+            },
+            theme: { mode: 'dark' }
+        };
+
+        soilChart = new ApexCharts(document.querySelector("#chart-soil"), soilOptions);
+        soilChart.render();
+    }
 
     // WebSocket real-time feed
     try {
@@ -159,40 +394,108 @@
             stompClient.subscribe('/topic/telemetry-updates', function(msg) {
                 const data = JSON.parse(msg.body);
                 
-                // Only process data for this specific device
-                if (String(data.deviceId) !== String(deviceId) && data.deviceId !== undefined) return;
+                if (String(data.deviceId) !== String(deviceId)) return;
                 
-                // System metrics update
-                const metricIds = ['free_heap', 'receive_time', 'receive_date', 'wifi_rssi', 'reboot_count'];
-                for (const key of metricIds) {
-                    if (data[key] !== undefined) {
-                        const el = document.getElementById('metric-' + key);
-                        if (el) {
-                            let suffix = '';
-                            if (key === 'free_heap') suffix = 'B';
-                            else if (key === 'wifi_rssi') suffix = ' dBm';
-                            el.innerText = data[key] + suffix;
-                        }
-                    }
+                const now = new Date().getTime();
+                let updateEnv = false;
+                let updateSoil = false;
+
+                if (data['Nhiệt độ'] !== undefined) {
+                    tempSeries.push([now, data['Nhiệt độ']]);
+                    if (tempSeries.length > 1000) tempSeries.shift();
+                    updateEnv = true;
                 }
+                if (data['Độ ẩm không khí'] !== undefined) {
+                    humSeries.push([now, data['Độ ẩm không khí']]);
+                    if (humSeries.length > 1000) humSeries.shift();
+                    updateEnv = true;
+                }
+                if (data['Độ ẩm đất'] !== undefined) {
+                    soilSeries.push([now, data['Độ ẩm đất']]);
+                    if (soilSeries.length > 1000) soilSeries.shift();
+                    updateSoil = true;
+                }
+
+                let envOpts = {
+                    series: [
+                        { name: 'Nhiệt độ', type: 'line', data: tempSeries }, 
+                        { name: 'Độ ẩm không khí', type: 'area', data: humSeries }
+                    ]
+                };
                 
-                // Chart updates
-                const timeLabel = new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" });
-                for (const key in data) {
-                    if (charts[key] !== undefined) {
-                        const chart = charts[key];
-                        // Push new data
-                        chart.data.labels.push(timeLabel);
-                        chart.data.datasets[0].data.push(data[key]);
-                        // Remove oldest data
-                        chart.data.labels.shift();
-                        chart.data.datasets[0].data.shift();
-                        chart.update();
+                let soilOpts = {
+                    series: [{ name: 'Độ ẩm đất', data: soilSeries }]
+                };
+                
+                if (activeTimeFilter || (manualZoomMin && manualZoomMax)) {
+                    let min = manualZoomMin;
+                    let max = manualZoomMax;
+                    
+                    if (activeTimeFilter) {
+                        let offset = 0;
+                        if (activeTimeFilter === '1H') offset = 3600000;
+                        if (activeTimeFilter === '24H') offset = 86400000;
+                        if (activeTimeFilter === '7D') offset = 7 * 86400000;
+                        min = now - offset;
+                        max = now;
                     }
+                    
+                    envOpts.xaxis = { min: min, max: max };
+                    soilOpts.xaxis = { min: min, max: max };
                 }
+
+                isProgrammaticZoom = true;
+                if (updateEnv && envChart) {
+                    envChart.updateOptions(envOpts, true, false); // false = disable animation for atomic smooth update
+                }
+                if (updateSoil && soilChart) {
+                    soilChart.updateOptions(soilOpts, true, false);
+                }
+                setTimeout(() => isProgrammaticZoom = false, 200);
+
+                updateStats();
             });
         });
     } catch(e) { console.error('WebSocket Error:', e); }
+
+    // Time Filter Logic
+    document.querySelectorAll('.time-filter').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all
+            document.querySelectorAll('.time-filter').forEach(btn => btn.classList.remove('active'));
+            // Add to clicked
+            this.classList.add('active');
+            
+            const filterText = this.innerText.trim();
+            const now = new Date().getTime();
+            let minTime = undefined;
+
+            if (filterText === '1H' || filterText === '24H' || filterText === '7D') {
+                activeTimeFilter = filterText;
+                let offset = 0;
+                if (filterText === '1H') offset = 3600000;
+                if (filterText === '24H') offset = 86400000;
+                if (filterText === '7D') offset = 7 * 86400000;
+                
+                isProgrammaticZoom = true;
+                if (envChart) envChart.updateOptions({ xaxis: { min: now - offset, max: now } }, true, true);
+                if (soilChart) soilChart.updateOptions({ xaxis: { min: now - offset, max: now } }, true, true);
+                setTimeout(() => isProgrammaticZoom = false, 500);
+            } else {
+                activeTimeFilter = undefined;
+                manualZoomMin = undefined;
+                manualZoomMax = undefined;
+                // Calendar icon clicked (Reset)
+                const minAll = tempSeries.length > 0 ? Math.min(...tempSeries.map(d=>d[0])) : now;
+                const maxAll = tempSeries.length > 0 ? Math.max(...tempSeries.map(d=>d[0])) : now;
+                
+                isProgrammaticZoom = true;
+                if (envChart) envChart.updateOptions({ xaxis: { min: minAll, max: maxAll } }, true, true);
+                if (soilChart) soilChart.updateOptions({ xaxis: { min: minAll, max: maxAll } }, true, true);
+                setTimeout(() => isProgrammaticZoom = false, 500);
+            }
+        });
+    });
 
     // Sidebar Toggle
     function toggleSidebar() {

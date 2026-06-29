@@ -5,6 +5,6 @@ WORKDIR /app
 
 # Sau này khi bạn build code Java, file .jar sẽ được copy vào đây
 # Hiện tại chúng ta để sẵn cấu hình này
-COPY target/*.jar app.jar
+COPY iot-web-app/target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

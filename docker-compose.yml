@@ -11,6 +11,7 @@ services:
       MYSQL_ROOT_PASSWORD: root_password_123
       MYSQL_USER: duc_user
       MYSQL_PASSWORD: duc_password_123
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - "3307:3306"  # Port 3307 để không trùng với MySQL/Postgres của ThingsBoard
     volumes:
@@ -25,6 +26,17 @@ services:
     depends_on:
       - db-web-iot
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db-web-iot:3306/iot_db?useSSL=false
+      - TZ=Asia/Ho_Chi_Minh
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-web-iot:3306/iot_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=duc_user
       - SPRING_DATASOURCE_PASSWORD=duc_password_123
+
+  # Service 3: MQTT Broker (Mosquitto)
+  mosquitto-iot-web:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto-iot-web
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
