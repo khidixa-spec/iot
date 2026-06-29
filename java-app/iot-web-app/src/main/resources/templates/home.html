@@ -337,21 +337,44 @@
                     }
                 }
             }
+            
+            // Update mini chart dynamically
+            if (window.miniChartInstance) {
+                let chartVal = null;
+                // Ưu tiên nhiệt độ, nếu không có thì lấy giá trị đầu tiên
+                if (cleanData['Nhiệt độ'] !== undefined) chartVal = cleanData['Nhiệt độ'];
+                else if (Object.values(cleanData).length > 0) chartVal = Object.values(cleanData)[0];
+                
+                if (chartVal !== null) {
+                    window.miniChartInstance.data.labels.push(ts);
+                    window.miniChartInstance.data.datasets[0].data.push(chartVal);
+                    if (window.miniChartInstance.data.labels.length > 50) {
+                        window.miniChartInstance.data.labels.shift();
+                        window.miniChartInstance.data.datasets[0].data.shift();
+                    }
+                    window.miniChartInstance.update();
+                }
+            }
         });
     });
 
-    // Mock Chart initialization if there is data
+    // Chart initialization with real data
     const hasData = /*[[${not #lists.isEmpty(latestReadings)}]]*/ false;
-    if (hasData) {
+    
+    // Parse real data from backend
+    const chartLabels = JSON.parse(/*[[${chartLabels != null ? chartLabels : '[]'}]]*/ '[]');
+    const chartData = JSON.parse(/*[[${chartData != null ? chartData : '[]'}]]*/ '[]');
+
+    if (hasData && chartLabels.length > 0) {
         const ctx = document.getElementById('miniChart');
         if (ctx) {
-            new Chart(ctx, {
+            window.miniChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['10m', '8m', '6m', '4m', '2m', 'Now'],
+                    labels: chartLabels,
                     datasets: [{
-                        label: 'Activity Trend',
-                        data: [12, 19, 15, 25, 22, 30],
+                        label: 'Live Activity',
+                        data: chartData,
                         borderColor: '#8aebff',
                         backgroundColor: 'rgba(138,235,255,0.1)',
                         borderWidth: 2,
@@ -359,7 +382,8 @@
                         fill: true,
                         pointBackgroundColor: '#0b1326',
                         pointBorderColor: '#8aebff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 2,
+                        pointRadius: 3
                     }]
                 },
                 options: {
@@ -369,11 +393,13 @@
                     scales: {
                         x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#859397', font: { family: "'Space Grotesk', sans-serif", size: 10 } } },
                         y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#859397', font: { family: "'Space Grotesk', sans-serif", size: 10 } } }
-                    }
+                    },
+                    animation: { duration: 400 }
                 }
             });
         }
     }
+    
     // Sidebar Toggle
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');

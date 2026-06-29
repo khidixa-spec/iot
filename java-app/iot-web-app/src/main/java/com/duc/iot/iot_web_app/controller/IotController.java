@@ -76,6 +76,32 @@ public class IotController {
                 latestReadings.put(s.getSensorName(), reading.getRawValue());
             }
         }
+        
+        // Lấy dữ liệu thật cho biểu đồ Activity
+        List<String> chartLabels = new ArrayList<>();
+        List<Double> chartData = new ArrayList<>();
+        
+        if (!sensors.isEmpty()) {
+            // Dùng sensor đầu tiên (thường là Nhiệt độ) làm mốc cho biểu đồ mini
+            Sensor firstSensor = sensors.get(0);
+            List<SensorReading> recentReadings = readingRepository.findTop50BySensorIdOrderByRecordedAtDesc(firstSensor.getId());
+            // Đảo ngược để có thứ tự thời gian tăng dần
+            for (int i = recentReadings.size() - 1; i >= 0; i--) {
+                SensorReading r = recentReadings.get(i);
+                chartLabels.add(r.getRecordedAt().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
+                chartData.add(r.getRawValue());
+            }
+        }
+        
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            model.addAttribute("chartLabels", mapper.writeValueAsString(chartLabels));
+            model.addAttribute("chartData", mapper.writeValueAsString(chartData));
+        } catch (Exception e) {
+            model.addAttribute("chartLabels", "[]");
+            model.addAttribute("chartData", "[]");
+        }
+
         model.addAttribute("device", device);
         model.addAttribute("sensors", sensors);
         model.addAttribute("latestReadings", latestReadings);
