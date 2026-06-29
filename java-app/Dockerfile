@@ -5,8 +5,8 @@ FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copy thư mục mã nguồn vào Docker
-COPY iot-web-app/pom.xml iot-web-app/
-COPY iot-web-app/src iot-web-app/src/
+COPY java-app/iot-web-app/pom.xml iot-web-app/
+COPY java-app/iot-web-app/src iot-web-app/src/
 
 # Chạy lệnh build của Maven để tạo ra file .jar (Bỏ qua chạy Test để build nhanh hơn)
 RUN cd iot-web-app && mvn clean package -DskipTests

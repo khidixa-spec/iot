@@ -19,7 +19,9 @@ services:
 
   # Service 2: Ứng dụng Java (Tạm thời để trống để build sau)
   java-app:
-    build: ./java-app
+    build: 
+      context: .
+      dockerfile: java-app/Dockerfile
     container_name: iot-java-service
     ports:
       - "8081:8080"
