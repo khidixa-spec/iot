@@ -21,7 +21,7 @@ services:
   java-app:
     build: 
       context: .
-      dockerfile: java-app/Dockerfile
+      dockerfile: Dockerfile
     container_name: iot-java-service
     ports:
       - "8081:8080"
