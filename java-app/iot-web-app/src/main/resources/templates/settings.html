@@ -35,9 +35,9 @@
 <body>
 
 <!-- Mobile Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
+<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
         <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Node Manager</div>
@@ -50,9 +50,9 @@
     </nav>
 </aside>
 
-<main class="md:ml-[240px] p-6 md:p-8 min-h-screen">
+<main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
-    <div class="md:hidden flex justify-between items-center mb-6">
+    <div class="lg:hidden flex justify-between items-center mb-6">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
         <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
             <span class="ms">menu</span>

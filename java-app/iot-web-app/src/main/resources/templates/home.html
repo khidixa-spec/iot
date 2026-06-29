@@ -41,17 +41,17 @@
 <body>
 
 <!-- Mobile Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
+<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Node Manager</div>
+        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Device Control</div>
     </div>
     <nav style="display:flex;flex-direction:column;gap:4px;flex:1;">
         <a href="/" class="sidebar-link"><span class="ms">dashboard</span>Dashboard</a>
-        <a href="/devices" class="sidebar-link"><span class="ms">developer_board</span>Devices</a>
-        <a th:href="'/analytics/' + ${device.id}" class="sidebar-link"><span class="ms">query_stats</span>Analytics</a>
+        <a href="/devices" class="sidebar-link active"><span class="ms">developer_board</span>Devices</a>
+        <a th:href="@{'/analytics/' + ${device.id}}" class="sidebar-link"><span class="ms">query_stats</span>Analytics</a>
         <a href="/settings" class="sidebar-link"><span class="ms">tune</span>Update OTA</a>
     </nav>
     <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.05);">
@@ -59,9 +59,9 @@
     </div>
 </aside>
 
-<main class="md:ml-[240px] p-6 md:p-8 min-h-screen flex flex-col gap-6">
+<main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen flex flex-col gap-6">
     <!-- Mobile Header -->
-    <div class="md:hidden flex justify-between items-center">
+    <div class="lg:hidden flex justify-between items-center">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
         <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
             <span class="ms">menu</span>

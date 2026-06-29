@@ -63,9 +63,9 @@
 <body>
 
 <!-- Mobile Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full md:translate-x-0">
+<aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
         <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Advanced Analytics</div>
@@ -77,20 +77,20 @@
         <a href="/settings" class="sidebar-link"><span class="ms">tune</span>Update OTA</a>
     </nav>
     <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.05);">
-        <a href="/devices" class="sidebar-link"><span class="ms">arrow_back</span>All Devices</a>
+        <a th:href="@{'/dashboard/' + ${device.id}}" class="sidebar-link"><span class="ms">arrow_back</span>Back to Device</a>
     </div>
 </aside>
 
-<main class="md:ml-[240px] p-6 md:p-8 min-h-screen">
+<main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
-    <div class="md:hidden flex justify-between items-center mb-6">
+    <div class="lg:hidden flex justify-between items-center mb-6">
         <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
         <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
             <span class="ms">menu</span>
         </button>
     </div>
 
-    <!-- Header -->
+    <!-- Page Header -->
     <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
         <div>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
@@ -307,6 +307,7 @@
                 borderColor: 'rgba(255,255,255,0.05)',
                 strokeDashArray: 4
             },
+            markers: { size: 4, strokeWidth: 0, hover: { size: 6 } },
             legend: {
                 position: 'top',
                 horizontalAlign: 'right',
@@ -386,6 +387,7 @@
                 borderColor: 'rgba(255,255,255,0.05)',
                 strokeDashArray: 4
             },
+            markers: { size: 4, strokeWidth: 0, hover: { size: 6 } },
             theme: { mode: 'dark' }
         };
 
