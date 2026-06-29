@@ -307,7 +307,7 @@
                 borderColor: 'rgba(255,255,255,0.05)',
                 strokeDashArray: 4
             },
-            markers: { size: 4, strokeWidth: 0, hover: { size: 6 } },
+            markers: { size: Math.max(tempSeries.length, humSeries.length) <= 1 ? 4 : 0, strokeWidth: 0, hover: { size: 6 } },
             legend: {
                 position: 'top',
                 horizontalAlign: 'right',
@@ -387,7 +387,7 @@
                 borderColor: 'rgba(255,255,255,0.05)',
                 strokeDashArray: 4
             },
-            markers: { size: 4, strokeWidth: 0, hover: { size: 6 } },
+            markers: { size: soilSeries.length <= 1 ? 4 : 0, strokeWidth: 0, hover: { size: 6 } },
             theme: { mode: 'dark' }
         };
 
@@ -412,17 +412,17 @@
 
                 if (data['Nhiệt độ'] !== undefined) {
                     tempSeries.push([now, data['Nhiệt độ']]);
-                    if (tempSeries.length > 1000) tempSeries.shift();
+                    if (tempSeries.length > 200) tempSeries.shift();
                     updateEnv = true;
                 }
                 if (data['Độ ẩm không khí'] !== undefined) {
                     humSeries.push([now, data['Độ ẩm không khí']]);
-                    if (humSeries.length > 1000) humSeries.shift();
+                    if (humSeries.length > 200) humSeries.shift();
                     updateEnv = true;
                 }
                 if (data['Độ ẩm đất'] !== undefined) {
                     soilSeries.push([now, data['Độ ẩm đất']]);
-                    if (soilSeries.length > 1000) soilSeries.shift();
+                    if (soilSeries.length > 200) soilSeries.shift();
                     updateSoil = true;
                 }
 

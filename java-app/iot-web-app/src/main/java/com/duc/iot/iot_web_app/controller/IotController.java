@@ -176,7 +176,7 @@ public class IotController {
 
         Map<String, List<Object[]>> historicalData = new LinkedHashMap<>();
         for (Sensor s : sensors) {
-            List<SensorReading> readings = readingRepository.findTop1000BySensorIdOrderByRecordedAtDesc(s.getId());
+            List<SensorReading> readings = readingRepository.findTop200BySensorIdOrderByRecordedAtDesc(s.getId());
             List<Object[]> sensorData = new ArrayList<>();
             // ApexCharts needs oldest first
             for (int i = readings.size() - 1; i >= 0; i--) {
