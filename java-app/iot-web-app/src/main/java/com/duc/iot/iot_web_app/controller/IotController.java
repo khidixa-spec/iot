@@ -70,10 +70,10 @@ public class IotController {
         List<Sensor> sensors = device.getSensors() != null ? device.getSensors() : new ArrayList<>();
         Map<String, Double> latestReadings = new LinkedHashMap<>();
         for (Sensor s : sensors) {
-            List<SensorReading> readings = readingRepository
-                    .findTop10BySensorIdOrderByRecordedAtDesc(s.getId());
-            if (!readings.isEmpty()) {
-                latestReadings.put(s.getSensorName(), readings.get(0).getRawValue());
+            SensorReading reading = readingRepository
+                    .findFirstBySensorIdOrderByRecordedAtDesc(s.getId());
+            if (reading != null) {
+                latestReadings.put(s.getSensorName(), reading.getRawValue());
             }
         }
         model.addAttribute("device", device);
@@ -225,6 +225,7 @@ public class IotController {
         Device device = deviceOpt.get();
         Long deviceId = device.getId();
         LocalDateTime payloadTime = LocalDateTime.now();
+        List<SensorReading> newReadings = new ArrayList<>();
 
         data.forEach((key, value) -> {
             if (value == null) {
@@ -257,7 +258,9 @@ public class IotController {
                         return; // bỏ qua chuỗi không phải số
                     }
 
-                    Sensor sensor = sensorRepository.findBySensorNameAndDevice_Id(key, deviceId)
+                    Sensor sensor = device.getSensors().stream()
+                            .filter(s -> s.getSensorName().equals(key))
+                            .findFirst()
                             .orElseGet(() -> {
                                 Sensor s = new Sensor();
                                 s.setSensorName(key);
@@ -268,7 +271,9 @@ public class IotController {
                                 }else if (key.toLowerCase().contains("humi")) {
                                     s.setSensorType(Sensor.SensorType.HUMIDITY);
                                 }
-                                return sensorRepository.save(s);
+                                s = sensorRepository.save(s);
+                                device.getSensors().add(s);
+                                return s;
                             });
 
                     SensorReading reading = new SensorReading();
@@ -276,10 +281,14 @@ public class IotController {
                     reading.setRawValue(numVal);
                     reading.setFilteredValue(numVal);
                     reading.setRecordedAt(payloadTime);
-                    readingRepository.save(reading);
+                    newReadings.add(reading);
                 }
             }
         });
+
+        if (!newReadings.isEmpty()) {
+            readingRepository.saveAll(newReadings);
+        }
 
         device.setLastSeen(LocalDateTime.now());
         device.setStatus(Device.Status.ONLINE);

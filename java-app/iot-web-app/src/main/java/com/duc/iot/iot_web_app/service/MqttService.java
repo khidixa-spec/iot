@@ -114,17 +114,23 @@ public class MqttService implements MqttCallback {
             ObjectNode objectNode = objectMapper.createObjectNode();
             LocalDateTime payloadTime = LocalDateTime.now();
 
+            java.util.List<SensorReading> newReadings = new java.util.ArrayList<>();
+
             if (data.has("temperature")) {
-                saveReading(device, "Nhiệt độ", Sensor.SensorType.TEMPERATURE, data.get("temperature").asDouble(), payloadTime);
+                newReadings.add(createReading(device, "Nhiệt độ", Sensor.SensorType.TEMPERATURE, data.get("temperature").asDouble(), payloadTime));
                 objectNode.put("Nhiệt độ", data.get("temperature").asDouble());
             }
             if (data.has("humidity")) {
-                saveReading(device, "Độ ẩm không khí", Sensor.SensorType.HUMIDITY, data.get("humidity").asDouble(), payloadTime);
+                newReadings.add(createReading(device, "Độ ẩm không khí", Sensor.SensorType.HUMIDITY, data.get("humidity").asDouble(), payloadTime));
                 objectNode.put("Độ ẩm không khí", data.get("humidity").asDouble());
             }
             if (data.has("soil")) {
-                saveReading(device, "Độ ẩm đất", Sensor.SensorType.CUSTOM, data.get("soil").asDouble(), payloadTime);
+                newReadings.add(createReading(device, "Độ ẩm đất", Sensor.SensorType.CUSTOM, data.get("soil").asDouble(), payloadTime));
                 objectNode.put("Độ ẩm đất", data.get("soil").asDouble());
+            }
+
+            if (!newReadings.isEmpty()) {
+                sensorReadingRepository.saveAll(newReadings);
             }
 
             // Update device status and last seen
@@ -163,25 +169,26 @@ public class MqttService implements MqttCallback {
         }
     }
 
-    private void saveReading(Device device, String sensorName, Sensor.SensorType type, double value, LocalDateTime timestamp) {
-        Optional<Sensor> sensorOpt = sensorRepository.findBySensorNameAndDevice_Id(sensorName, device.getId());
-        Sensor sensor;
-        if (sensorOpt.isEmpty()) {
-            sensor = new Sensor();
-            sensor.setSensorName(sensorName);
-            sensor.setSensorType(type);
-            sensor.setDevice(device);
-            sensor.setIsEnabled(true);
-            sensor = sensorRepository.save(sensor);
-        } else {
-            sensor = sensorOpt.get();
-        }
+    private SensorReading createReading(Device device, String sensorName, Sensor.SensorType type, double value, LocalDateTime timestamp) {
+        Sensor sensor = device.getSensors().stream()
+                .filter(s -> s.getSensorName().equals(sensorName))
+                .findFirst()
+                .orElseGet(() -> {
+                    Sensor s = new Sensor();
+                    s.setSensorName(sensorName);
+                    s.setSensorType(type);
+                    s.setDevice(device);
+                    s.setIsEnabled(true);
+                    s = sensorRepository.save(s);
+                    device.getSensors().add(s);
+                    return s;
+                });
 
         SensorReading reading = new SensorReading();
         reading.setSensor(sensor);
         reading.setRawValue(value);
         reading.setFilteredValue(value);
         reading.setRecordedAt(timestamp);
-        sensorReadingRepository.save(reading);
+        return reading;
     }
 }

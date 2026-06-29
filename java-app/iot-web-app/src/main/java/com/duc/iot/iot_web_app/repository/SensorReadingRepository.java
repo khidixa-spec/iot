@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface SensorReadingRepository extends JpaRepository<SensorReading, Long> {
     List<SensorReading> findBySensorIdOrderByRecordedAtDesc(Long sensorId);
+    SensorReading findFirstBySensorIdOrderByRecordedAtDesc(Long sensorId);
     List<SensorReading> findTop10BySensorIdOrderByRecordedAtDesc(Long sensorId);
     List<SensorReading> findTop50BySensorIdOrderByRecordedAtDesc(Long sensorId);
     List<SensorReading> findTop1000BySensorIdOrderByRecordedAtDesc(Long sensorId);
