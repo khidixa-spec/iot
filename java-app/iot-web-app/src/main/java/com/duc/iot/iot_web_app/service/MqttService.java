@@ -184,11 +184,11 @@ public class MqttService implements MqttCallback {
                     return s;
                 });
 
-        SensorReading reading = new SensorReading();
-        reading.setSensor(sensor);
-        reading.setRawValue(value);
-        reading.setFilteredValue(value);
-        reading.setRecordedAt(timestamp);
-        return reading;
+        SensorReading newSensorReading = new SensorReading();
+        newSensorReading.setSensor(sensor);
+        newSensorReading.setRawValue(value);
+        newSensorReading.setFilteredValue(value);
+        newSensorReading.setRecordedAt(timestamp);
+        return newSensorReading;
     }
 }
