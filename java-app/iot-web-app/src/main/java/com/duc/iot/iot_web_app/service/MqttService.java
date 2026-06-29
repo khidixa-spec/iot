@@ -37,6 +37,12 @@ public class MqttService implements MqttCallback {
     @Value("${mqtt.topic.sensor}")
     private String topicSensor;
 
+    @Value("${mqtt.username:}")
+    private String mqttUsername;
+
+    @Value("${mqtt.password:}")
+    private String mqttPassword;
+
     @Autowired
     private DeviceRepository deviceRepository;
 
@@ -61,6 +67,14 @@ public class MqttService implements MqttCallback {
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
             options.setConnectionTimeout(10);
+            
+            if (mqttUsername != null && !mqttUsername.isEmpty()) {
+                options.setUserName(mqttUsername);
+            }
+            if (mqttPassword != null && !mqttPassword.isEmpty()) {
+                options.setPassword(mqttPassword.toCharArray());
+            }
+
             client.setCallback(this);
             client.connect(options);
             client.subscribe(topicSensor);
