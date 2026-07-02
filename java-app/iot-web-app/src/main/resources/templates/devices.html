@@ -179,9 +179,12 @@
 
             <!-- OTA -->
             <div style="border-top:1px solid var(--border-light);padding-top:16px;" onclick="event.stopPropagation();">
-                <a href="/settings" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--color-ptit);color:#fff;border:none;border-radius:8px;padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <a th:if="${device.status != null and device.status.name() == 'ONLINE'}" href="/settings" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--color-ptit);color:#fff;border:none;border-radius:8px;padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
                     <span class="ms" style="font-size:16px;">system_update</span>Update OTA
                 </a>
+                <button th:unless="${device.status != null and device.status.name() == 'ONLINE'}" type="button" onclick="alert('Thiết bị đang OFFLINE. Không thể nạp firmware OTA!');" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--border-light);color:var(--text-muted);border:none;border-radius:8px;padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:not-allowed;">
+                    <span class="ms" style="font-size:16px;">system_update</span>Update OTA
+                </button>
             </div>
         </div>
     </div>

@@ -284,6 +284,13 @@
     const deviceId = /*[[${device.id}]]*/ 0;
     
     function toggleRelay(relayId, isChecked) {
+        const badge = document.getElementById('device-status-badge');
+        if (badge && badge.innerText === 'OFFLINE') {
+            alert("Thiết bị đang OFFLINE. Không thể gửi lệnh điều khiển!");
+            document.getElementById(`toggle-relay${relayId}`).checked = !isChecked;
+            return;
+        }
+        
         const statusText = document.getElementById(`status-relay${relayId}`);
         const originalText = statusText.innerText;
         
