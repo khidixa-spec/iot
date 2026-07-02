@@ -29,7 +29,7 @@ public class DeviceStatusScheduler {
         // Thiết bị được coi là offline nếu không gửi dữ liệu trong vòng 60 giây qua
         LocalDateTime threshold = LocalDateTime.now().minusSeconds(60);
         
-        List<Device> offlineDevices = deviceRepository.findByStatusAndLastSeenBefore(Device.Status.ONLINE, threshold);
+        List<Device> offlineDevices = deviceRepository.findByStatusAndLastSeenBeforeOrNull(Device.Status.ONLINE, threshold);
         
         for (Device device : offlineDevices) {
             device.setStatus(Device.Status.OFFLINE);

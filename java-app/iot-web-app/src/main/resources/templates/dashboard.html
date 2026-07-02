@@ -90,12 +90,12 @@
         </div>
         <div class="glass stat-card" style="border-top:3px solid #34d399;">
             <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:12px;">Online</div>
-            <div class="mono" style="font-size:40px;font-weight:900;color:#34d399;" th:text="${onlineCount}">0</div>
+            <div id="online-count" class="mono" style="font-size:40px;font-weight:900;color:#34d399;" th:text="${onlineCount}">0</div>
             <div style="font-size:11px;color:#859397;margin-top:8px;">nodes active</div>
         </div>
         <div class="glass stat-card" style="border-top:3px solid #f87171;">
             <div style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:12px;">Offline</div>
-            <div class="mono" style="font-size:40px;font-weight:900;color:#f87171;" th:text="${offlineCount}">0</div>
+            <div id="offline-count" class="mono" style="font-size:40px;font-weight:900;color:#f87171;" th:text="${offlineCount}">0</div>
             <div style="font-size:11px;color:#859397;margin-top:8px;">nodes inactive</div>
         </div>
         <div class="glass stat-card" style="border-top:3px solid #a78bfa;">
@@ -138,7 +138,7 @@
                             <div class="mono" style="font-size:12px;" th:text="${device.wifiRssi + ' dBm'}">N/A</div>
                         </div>
                         <div>
-                            <span th:style="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:rgba(52,211,153,.12);color:#34d399;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;' : 'background:rgba(239,68,68,.12);color:#f87171;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;'"
+                            <span th:id="'device-status-' + ${device.id}" th:style="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:rgba(52,211,153,.12);color:#34d399;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;' : 'background:rgba(239,68,68,.12);color:#f87171;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;'"
                                   th:text="${device.status != null ? device.status : 'OFFLINE'}">ONLINE</span>
                         </div>
                         <span class="ms" style="color:#859397;font-size:18px;">chevron_right</span>
@@ -179,13 +179,50 @@
             stompClient.subscribe('/topic/telemetry-updates', function(msg) {
                 const data = JSON.parse(msg.body);
                 const ts = new Date().toLocaleTimeString();
-                const line = document.createElement('div');
-                line.className = 'log-line';
+                
+                // Handle realtime status updates
+                if (data.deviceId && data.status) {
+                    const badge = document.getElementById('device-status-' + data.deviceId);
+                    const isNowOnline = data.status === 'ONLINE';
+                    
+                    if (badge && badge.innerText !== data.status) {
+                        badge.innerText = data.status;
+                        if (isNowOnline) {
+                            badge.style.background = 'rgba(52,211,153,.12)';
+                            badge.style.color = '#34d399';
+                        } else {
+                            badge.style.background = 'rgba(239,68,68,.12)';
+                            badge.style.color = '#f87171';
+                        }
+                        
+                        // Update counters
+                        const onlineCountEl = document.getElementById('online-count');
+                        const offlineCountEl = document.getElementById('offline-count');
+                        if (onlineCountEl && offlineCountEl) {
+                            let onlineCount = parseInt(onlineCountEl.innerText);
+                            let offlineCount = parseInt(offlineCountEl.innerText);
+                            if (isNowOnline) {
+                                onlineCount++; offlineCount--;
+                            } else {
+                                onlineCount--; offlineCount++;
+                            }
+                            onlineCountEl.innerText = Math.max(0, onlineCount);
+                            offlineCountEl.innerText = Math.max(0, offlineCount);
+                        }
+                    }
+                }
+                
                 const devId = data.deviceId || '?';
                 delete data.deviceId;
-                line.innerHTML = '<span class="ts">[' + ts + '] DEV-' + devId + '</span>' + JSON.stringify(data);
-                feed.insertBefore(line, feed.firstChild);
-                if (feed.children.length > 100) feed.removeChild(feed.lastChild);
+                delete data.status;
+                
+                if (Object.keys(data).length > 0) {
+                    const line = document.createElement('div');
+                    line.className = 'log-line';
+                    line.innerHTML = '<span class="ts">[' + ts + '] DEV-' + devId + '</span>' + JSON.stringify(data);
+                    feed.insertBefore(line, feed.firstChild);
+                    if (feed.children.length > 100) feed.removeChild(feed.lastChild);
+                }
             });
             const info = document.createElement('div');
             info.className = 'log-line';
