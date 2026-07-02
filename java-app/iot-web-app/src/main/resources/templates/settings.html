@@ -71,8 +71,7 @@
                 <span class="ms">system_update</span>Firmware Repository
             </h2>
 
-            <!-- Upload Form -->
-            <form th:action="@{/api/ota/versions}" method="POST" enctype="multipart/form-data">
+            <form id="upload-form" th:action="@{/api/ota/versions}" method="POST" enctype="multipart/form-data">
                 <div style="margin-bottom:16px;">
                     <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Version Tag</label>
                     <input type="text" name="version" placeholder="e.g. v1.2.0" required/>
@@ -87,7 +86,16 @@
                         <p style="color:rgba(133,147,151,.5);font-size:10px;margin-top:4px;">SHA-256 checksum auto-calculated</p>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary">Upload & Register Firmware</button>
+                <button type="submit" id="upload-btn" class="btn-primary">Upload & Register Firmware</button>
+                <div id="progress-container" style="display:none;margin-top:16px;">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:#8aebff;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">
+                        <span id="progress-text">Uploading...</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div style="height:6px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;">
+                        <div id="progress-bar" style="height:100%;width:0%;background:#8aebff;transition:width 0.2s;"></div>
+                    </div>
+                </div>
             </form>
 
             <!-- Firmware List -->
@@ -158,9 +166,11 @@
                     <div style="color:#859397;">POST</div>
                     <div>/api/telemetry/{deviceId}</div>
                     <div style="color:#859397;margin-top:8px;">Body (JSON):</div>
-                    <div>{"temperature": 25.5,</div>
-                    <div>&nbsp;"humidity": 60,</div>
-                    <div>&nbsp;"free_heap": 45000}</div>
+                    <div>{</div>
+                    <div>&nbsp;<span style="color:#8aebff">"temperature"</span>: <span style="color:#34d399">25.5</span>,</div>
+                    <div>&nbsp;<span style="color:#8aebff">"humidity"</span>: <span style="color:#34d399">60</span>,</div>
+                    <div>&nbsp;<span style="color:#8aebff">"free_heap"</span>: <span style="color:#34d399">45000</span></div>
+                    <div>}</div>
                 </div>
             </div>
         </div>
@@ -174,6 +184,57 @@
             label.textContent = this.files[0].name;
             label.style.color = '#8aebff';
         }
+    });
+
+    // AJAX Upload logic with Progress
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        
+        const btn = document.getElementById('upload-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressText = document.getElementById('progress-text');
+        
+        btn.disabled = true;
+        btn.style.display = 'none';
+        progressContainer.style.display = 'block';
+        
+        xhr.upload.addEventListener('progress', function(event) {
+            if (event.lengthComputable) {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressPercent.innerText = percent + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                progressPercent.innerText = '100%';
+                progressText.innerText = 'SUCCESS';
+                progressText.style.color = '#34d399';
+                progressBar.style.background = '#34d399';
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                alert('Upload failed: ' + xhr.statusText);
+                btn.disabled = false;
+                btn.style.display = 'block';
+                progressContainer.style.display = 'none';
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            alert('Upload error');
+            btn.disabled = false;
+            btn.style.display = 'block';
+            progressContainer.style.display = 'none';
+        });
+        
+        xhr.open('POST', form.action, true);
+        xhr.send(formData);
     });
 
     // Sidebar Toggle

@@ -107,7 +107,7 @@
                 <div class="time-filter"><span class="ms" style="font-size:14px;vertical-align:middle;">calendar_month</span></div>
             </div>
             <a th:href="'/api/export/' + ${device.id} + '/csv'" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
-                <span class="ms" style="font-size:16px;">download</span>Xuất Excel
+                <span class="ms" style="font-size:16px;">download</span>Export CSV
             </a>
             <a th:href="'/dashboard/' + ${device.id}" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
                 <span class="ms" style="font-size:16px;">dashboard</span>Live Dash
@@ -120,42 +120,54 @@
         <div class="glass" style="border-radius:20px;padding:24px;margin-bottom:24px;position:relative;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
                 <div>
-                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Môi trường (Nhiệt độ & Độ ẩm)</h2>
-                    <p style="font-size:12px;color:#859397;margin-top:4px;">Tương quan nghịch biến giữa nhiệt độ và độ ẩm không khí</p>
+                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Environment (Temp & Humidity)</h2>
+                    <p style="font-size:12px;color:#859397;margin-top:4px;">Correlation between temperature and air humidity</p>
                 </div>
                 <!-- Quick Stats for Env -->
                 <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-env">
-                    <div class="stat-badge">Nhiệt độ Max: <span id="stat-temp-max">--</span>°C</div>
-                    <div class="stat-badge">Nhiệt độ Min: <span id="stat-temp-min">--</span>°C</div>
-                    <div class="stat-badge">Độ ẩm Max: <span id="stat-hum-max">--</span>%</div>
+                    <div class="stat-badge">Temp Max: <span id="stat-temp-max">--</span>°C</div>
+                    <div class="stat-badge">Temp Min: <span id="stat-temp-min">--</span>°C</div>
+                    <div class="stat-badge">Hum Max: <span id="stat-hum-max">--</span>%</div>
                 </div>
             </div>
             
-            <div id="chart-environment" style="min-height: 350px;"></div>
+            <div style="position:relative;min-height:350px;">
+                <div id="chart-environment" style="min-height: 350px;"></div>
+                <div id="empty-overlay-env" style="display:none;position:absolute;inset:0;background:rgba(11,19,38,0.6);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#859397;">
+                    <span class="ms" style="font-size:32px;color:rgba(138,235,255,.3);">show_chart</span>
+                    <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">No data available for the selected period</p>
+                </div>
+            </div>
         </div>
 
         <!-- Soil Moisture Chart -->
         <div class="glass" style="border-radius:20px;padding:24px;position:relative;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
                 <div>
-                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Độ ẩm đất (Tưới tiêu)</h2>
-                    <p style="font-size:12px;color:#859397;margin-top:4px;">Theo dõi tình trạng khô hạn của đất để kích hoạt máy bơm</p>
+                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Soil Moisture (Irrigation)</h2>
+                    <p style="font-size:12px;color:#859397;margin-top:4px;">Monitor soil dryness to activate water pump</p>
                 </div>
                 <!-- Quick Stats for Soil -->
                 <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-soil">
-                    <div class="stat-badge">Trung bình: <span id="stat-soil-avg">--</span>%</div>
-                    <div class="stat-badge">Trạng thái: <span id="stat-soil-status" style="color:#10b981;">--</span></div>
+                    <div class="stat-badge">Average: <span id="stat-soil-avg">--</span>%</div>
+                    <div class="stat-badge">Status: <span id="stat-soil-status" style="color:#10b981;">--</span></div>
                 </div>
             </div>
             
-            <div id="chart-soil" style="min-height: 250px;"></div>
+            <div style="position:relative;min-height:250px;">
+                <div id="chart-soil" style="min-height: 250px;"></div>
+                <div id="empty-overlay-soil" style="display:none;position:absolute;inset:0;background:rgba(11,19,38,0.6);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#859397;">
+                    <span class="ms" style="font-size:32px;color:rgba(138,235,255,.3);">show_chart</span>
+                    <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">No data available for the selected period</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- No sensors -->
     <div th:if="${#lists.isEmpty(sensors)}" class="glass" style="border-radius:16px;padding:60px;text-align:center;">
         <span class="ms" style="font-size:56px;color:rgba(138,235,255,.2);">monitoring</span>
-        <p style="color:#859397;margin-top:16px;">Chưa có dữ liệu cảm biến. Đang chờ thiết bị gửi Telemetry...</p>
+        <p style="color:#859397;margin-top:16px;">No sensor data available. Waiting for telemetry...</p>
     </div>
 </main>
 
@@ -227,6 +239,15 @@
 
     if (Object.keys(histData).length > 0) {
         updateStats();
+        
+        if (tempSeries.length === 0 && humSeries.length === 0) {
+            const envOverlay = document.getElementById('empty-overlay-env');
+            if(envOverlay) envOverlay.style.display = 'flex';
+        }
+        if (soilSeries.length === 0) {
+            const soilOverlay = document.getElementById('empty-overlay-soil');
+            if(soilOverlay) soilOverlay.style.display = 'flex';
+        }
 
         // 1. Environment Chart (Multi-Axis)
         var envOptions = {

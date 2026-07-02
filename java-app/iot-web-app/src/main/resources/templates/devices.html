@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         body { background: #0b1326; color: #dae2fd; font-family: 'Space Grotesk', sans-serif; }
         .glass { background: rgba(23,31,51,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(138,235,255,0.08); }
@@ -126,11 +128,24 @@
                     <span th:if="${device.category}" style="font-size:9px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.15);padding:2px 8px;border-radius:20px;" th:text="${device.category}">Category</span>
                 </div>
                 <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;">
-                    <span th:text="${(device.location != null ? device.location : 'N/A')}">Location</span> 
-                    • <span style="color:#a78bfa;font-weight:700;">TOKEN: <span th:text="${device.deviceUid}">UID</span></span>
+                    <span th:text="${(device.location != null ? device.location : 'N/A')}">Location</span>
                 </p>
-                <div style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.2);border:1px solid rgba(52,211,153,.2);border-radius:6px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;word-break:break-all;">
-                    MQTT Topic: iot/sensor/data/<span th:text="${device.deviceUid}"></span>
+                <div style="margin-top:8px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid rgba(167,139,250,.2);border-radius:6px;padding:6px 10px;margin-bottom:6px;">
+                        <span style="font-size:10px;color:#a78bfa;font-weight:700;display:flex;align-items:center;gap:6px;">
+                            <span class="ms" style="font-size:14px;">key</span>
+                            <span th:id="'token-hidden-' + ${device.id}">••••••••••••••••••••</span>
+                            <span class="mono" th:id="'token-show-' + ${device.id}" style="display:none;" th:text="${device.deviceUid}">UID</span>
+                        </span>
+                        <div style="display:flex;gap:4px;">
+                            <button type="button" th:onclick="'toggleToken(\'' + ${device.id} + '\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Show/Hide Token"><span class="ms" style="font-size:14px;" th:id="'token-icon-' + ${device.id}">visibility</span></button>
+                            <button type="button" th:onclick="'copyToClipboard(\'' + ${device.deviceUid} + '\', \'Token\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;">
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">iot/sensor/data/<span th:text="${device.deviceUid}"></span></span>
+                        <button type="button" th:onclick="'copyToClipboard(\'iot/sensor/data/' + ${device.deviceUid} + '\', \'Topic\')'" style="background:none;border:none;color:#859397;cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                    </div>
                 </div>
             </div>
 
@@ -231,6 +246,38 @@ function openEditModal(id, name, category, location) {
     document.getElementById('editCategory').value = category;
     document.getElementById('editLocation').value = location;
     document.getElementById('editDeviceModal').style.display = 'flex';
+}
+
+function toggleToken(id) {
+    const hidden = document.getElementById('token-hidden-' + id);
+    const show = document.getElementById('token-show-' + id);
+    const icon = document.getElementById('token-icon-' + id);
+    
+    if (show.style.display === 'none') {
+        hidden.style.display = 'none';
+        show.style.display = 'inline';
+        icon.innerText = 'visibility_off';
+    } else {
+        hidden.style.display = 'inline';
+        show.style.display = 'none';
+        icon.innerText = 'visibility';
+    }
+}
+
+function copyToClipboard(text, type) {
+    navigator.clipboard.writeText(text).then(() => {
+        Toastify({
+            text: type + " copied to clipboard",
+            duration: 3000, close: true, gravity: "bottom", position: "right",
+            style: { background: "#34d399", color: "#000", fontWeight: "bold", borderRadius: "8px" }
+        }).showToast();
+    }).catch(err => {
+        Toastify({
+            text: "Failed to copy",
+            duration: 3000, close: true, gravity: "bottom", position: "right",
+            style: { background: "#ef4444", color: "#fff", fontWeight: "bold", borderRadius: "8px" }
+        }).showToast();
+    });
 }
 </script>
 
