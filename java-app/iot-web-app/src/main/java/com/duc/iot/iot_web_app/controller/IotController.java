@@ -321,6 +321,7 @@ public class IotController {
         deviceRepository.save(device);
 
         data.put("deviceId", deviceId);
+        data.put("status", "ONLINE");
         System.out.println("Broadcasting to /topic/telemetry-updates: " + data);
         messagingTemplate.convertAndSend("/topic/telemetry-updates", (Object) data);
 

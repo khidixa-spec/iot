@@ -81,7 +81,7 @@
                 <div>
                     <h1 style="font-size:42px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1.1;" th:text="${device.deviceName}">Device Name</h1>
                     <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-                        <span th:class="${device.status != null and device.status.name() == 'ONLINE'} ? 'pulse-ring' : ''" 
+                        <span id="device-status-dot" th:class="${device.status != null and device.status.name() == 'ONLINE'} ? 'pulse-ring' : ''" 
                               style="width:8px;height:8px;border-radius:50%;display:inline-block;"
                               th:styleappend="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:#34d399;' : 'background:#f87171;'"></span>
                         <span style="font-size:12px;color:#859397;text-transform:uppercase;letter-spacing:.2em;font-weight:700;"
@@ -100,7 +100,7 @@
                     <span class="mono" style="color:#8aebff;font-size:14px;font-weight:600;" th:text="${device.ipAddress != null ? device.ipAddress : '0.0.0.0'}">N/A</span>
                 </div>
                 <div style="padding:4px 12px;">
-                    <span th:style="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;' : 'background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;'"
+                    <span id="device-status-badge" th:style="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;' : 'background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;'"
                           th:text="${device.status != null ? device.status : 'OFFLINE'}">ONLINE</span>
                 </div>
             </div>
@@ -309,6 +309,40 @@
             // Format nice looking JSON
             let cleanData = {...data};
             delete cleanData.deviceId;
+            
+            // Handle status updates
+            if (cleanData.status) {
+                const badge = document.getElementById('device-status-badge');
+                const dot = document.getElementById('device-status-dot');
+                if (cleanData.status === 'OFFLINE') {
+                    if (badge) {
+                        badge.innerText = 'OFFLINE';
+                        badge.style.background = 'rgba(239,68,68,.15)';
+                        badge.style.color = '#f87171';
+                        badge.style.border = '1px solid rgba(239,68,68,.3)';
+                    }
+                    if (dot) {
+                        dot.className = '';
+                        dot.style.background = '#f87171';
+                    }
+                } else if (cleanData.status === 'ONLINE') {
+                    if (badge) {
+                        badge.innerText = 'ONLINE';
+                        badge.style.background = 'rgba(52,211,153,.15)';
+                        badge.style.color = '#34d399';
+                        badge.style.border = '1px solid rgba(52,211,153,.3)';
+                    }
+                    if (dot) {
+                        dot.className = 'pulse-ring';
+                        dot.style.background = '#34d399';
+                    }
+                }
+                delete cleanData.status;
+            }
+            
+            // Skip rendering empty data (e.g. only status update)
+            if (Object.keys(cleanData).length === 0) return;
+            
             
             line.innerHTML = `<span style="color:#859397;">[${ts}]</span> <span style="color:#34d399;">RECV</span> ${JSON.stringify(cleanData)}`;
             stream.insertBefore(line, stream.firstChild);

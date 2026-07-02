@@ -140,6 +140,7 @@ public class MqttService implements MqttCallback {
 
             // Push to WebSocket for live feed
             objectNode.put("deviceId", device.getId());
+            objectNode.put("status", "ONLINE");
             messagingTemplate.convertAndSend("/topic/telemetry-updates", objectNode.toString());
 
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
