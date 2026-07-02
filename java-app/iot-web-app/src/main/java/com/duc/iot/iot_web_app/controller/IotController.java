@@ -97,7 +97,7 @@ public class IotController {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             model.addAttribute("chartLabels", mapper.writeValueAsString(chartLabels));
             model.addAttribute("chartData", mapper.writeValueAsString(chartData));
-        } catch (Exception e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             model.addAttribute("chartLabels", "[]");
             model.addAttribute("chartData", "[]");
         }
