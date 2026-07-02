@@ -89,7 +89,7 @@
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
-        <div th:each="device : ${devices}" class="glass" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;">
+        <div th:each="device : ${devices}" class="glass" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(138,235,255,.4)'" onmouseout="this.style.borderColor='rgba(138,235,255,.08)'" th:onclick="'window.location.href=\'/dashboard/' + ${device.id} + '\''">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="width:48px;height:48px;border-radius:12px;background:rgba(138,235,255,.08);border:1px solid rgba(138,235,255,.15);display:flex;align-items:center;justify-content:center;color:#8aebff;">
@@ -108,12 +108,12 @@
                                 th:data-name="${device.deviceName}" 
                                 th:data-category="${device.category}" 
                                 th:data-location="${device.location}" 
-                                onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-category'), this.getAttribute('data-location'))" 
+                                onclick="event.stopPropagation(); openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-category'), this.getAttribute('data-location'))" 
                                 style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(251,191,36,.2)'" onmouseout="this.style.background='rgba(251,191,36,.1)'" title="Sửa thiết bị">
                             <span class="ms" style="font-size:16px;">edit</span>
                         </button>
                         <form th:action="'/devices/delete/' + ${device.id}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị này không?');">
-                            <button type="submit" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(239,68,68,.1)'" title="Xóa thiết bị">
+                            <button type="submit" onclick="event.stopPropagation();" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(239,68,68,.1)'" title="Xóa thiết bị">
                                 <span class="ms" style="font-size:16px;">delete</span>
                             </button>
                         </form>
@@ -138,13 +138,13 @@
                             <span class="mono" th:id="'token-show-' + ${device.id}" style="display:none;" th:text="${device.deviceUid}">UID</span>
                         </span>
                         <div style="display:flex;gap:4px;">
-                            <button type="button" th:onclick="'toggleToken(\'' + ${device.id} + '\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Show/Hide Token"><span class="ms" style="font-size:14px;" th:id="'token-icon-' + ${device.id}">visibility</span></button>
-                            <button type="button" th:onclick="'copyToClipboard(\'' + ${device.deviceUid} + '\', \'Token\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                            <button type="button" th:onclick="'event.stopPropagation(); toggleToken(\'' + ${device.id} + '\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Show/Hide Token"><span class="ms" style="font-size:14px;" th:id="'token-icon-' + ${device.id}">visibility</span></button>
+                            <button type="button" th:onclick="'event.stopPropagation(); copyToClipboard(\'' + ${device.deviceUid} + '\', \'Token\')'" style="background:none;border:none;color:#859397;cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;">
                         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">iot/sensor/data/<span th:text="${device.deviceUid}"></span></span>
-                        <button type="button" th:onclick="'copyToClipboard(\'iot/sensor/data/' + ${device.deviceUid} + '\', \'Topic\')'" style="background:none;border:none;color:#859397;cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                        <button type="button" th:onclick="'event.stopPropagation(); copyToClipboard(\'iot/sensor/data/' + ${device.deviceUid} + '\', \'Topic\')'" style="background:none;border:none;color:#859397;cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
                     </div>
                 </div>
             </div>
