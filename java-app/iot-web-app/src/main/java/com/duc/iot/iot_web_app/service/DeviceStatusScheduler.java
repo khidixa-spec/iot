@@ -40,7 +40,7 @@ public class DeviceStatusScheduler {
             Map<String, Object> statusUpdate = new HashMap<>();
             statusUpdate.put("deviceId", device.getId());
             statusUpdate.put("status", "OFFLINE");
-            messagingTemplate.convertAndSend("/topic/telemetry-updates", statusUpdate);
+            messagingTemplate.convertAndSend("/topic/telemetry-updates", (Object) statusUpdate);
         }
     }
 }
