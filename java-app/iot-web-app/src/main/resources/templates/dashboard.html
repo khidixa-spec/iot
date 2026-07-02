@@ -48,9 +48,15 @@
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
 <aside id="sidebar" style="z-index:50;" class="glass flex flex-col border-r border-white/5 fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
-    <div style="margin-bottom:32px;padding:0 8px;">
-        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <div style="font-size:10px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Command Center</div>
+    <div style="margin-bottom:32px;padding:0 8px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+        <div style="width:72px;height:72px;background:#fff;border-radius:16px;padding:6px;display:flex;justify-content:center;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Logo_PTIT_University.png" alt="PTIT Logo" style="width:100%;height:auto;object-fit:contain;"/>
+        </div>
+        <div>
+            <div style="font-size:16px;font-weight:900;color:#8aebff;letter-spacing:-.03em;">IOT_SENTRY</div>
+            <div style="font-size:10px;color:#dae2fd;font-weight:600;line-height:1.4;margin-top:6px;padding:0 4px;">Học Viện Công Nghệ Bưu Chính Viễn Thông<br>Cơ Sở Tại Thành Phố Hồ Chí Minh</div>
+            <div style="font-size:9px;color:rgba(138,235,255,.4);text-transform:uppercase;letter-spacing:.2em;margin-top:8px;">Command Center</div>
+        </div>
     </div>
     <nav style="display:flex;flex-direction:column;gap:4px;flex:1;">
         <a href="/" class="sidebar-link active"><span class="ms">dashboard</span>Dashboard</a>
