@@ -9,29 +9,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
     <style>
         :root {
-            --bg-body: #0d1117;
-            --bg-sidebar: #090d13;
-            --bg-card: #161b22;
-            --bg-input: #21262d;
-            --border-subtle: #21262d;
-            --border-focus: #38bdf8;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
+            --bg-body: #f4f6f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8f9fa;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --color-ptit: #b31d1d;
             --status-online: #10b981;
-            --status-offline: #f87171;
+            --status-offline: #ef4444;
         }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Inter', system-ui, sans-serif; }
-        .glass { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+        .glass { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--card-shadow); }
         .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
-        .sidebar-link:hover { background: var(--bg-input); color: var(--text-main); }
-        .sidebar-link.active { background: transparent; color: var(--text-main); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
+        .sidebar-link:hover { background: var(--bg-input); color: var(--color-ptit); }
+        .sidebar-link.active { background: rgba(179, 29, 29, 0.08); color: var(--color-ptit); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
         .mono { font-family:'JetBrains Mono',monospace; }
         .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; }
-        input[type=text], select { background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius:8px; color:var(--text-main); font-size:13px; padding:10px 14px; width:100%; box-sizing:border-box; }
-        input[type=text]:focus, select:focus { outline:none; border-color:var(--border-focus); }
-        .upload-zone { border:2px dashed var(--border-focus); background: var(--bg-input); border-radius:12px; padding:32px; text-align:center; position:relative; transition:all .2s; cursor:pointer; }
-        .upload-zone:hover { border-color:var(--text-main); }
+        input[type=text], select { background: var(--bg-input); border: 1px solid var(--border-light); border-radius:8px; color:var(--text-main); font-size:13px; padding:10px 14px; width:100%; box-sizing:border-box; }
+        input[type=text]:focus, select:focus { outline:none; border-color:var(--color-ptit); }
+        .upload-zone { border:2px dashed var(--border-light); background: var(--bg-input); border-radius:12px; padding:32px; text-align:center; position:relative; transition:all .2s; cursor:pointer; }
+        .upload-zone:hover { border-color:var(--color-ptit); }
         .btn-primary { background:var(--color-ptit); color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.1em; padding:12px 24px; border-radius:8px; border:none; cursor:pointer; width:100%; transition:all .2s; }
         .btn-primary:hover { opacity:0.9; }
         .btn-primary:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(1); }
@@ -50,7 +50,7 @@
 <!-- Mobile Overlay -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
+<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-light);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;display:flex;align-items:center;gap:14px;">
         <div style="width:42px;height:42px;flex-shrink:0;display:flex;justify-content:center;align-items:center;overflow:hidden;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Logo_PTIT_University.png" alt="PTIT Logo" style="width:130%;height:130%;object-fit:contain;"/>
@@ -75,78 +75,78 @@
 <main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
     <div class="lg:hidden flex justify-between items-center mb-6">
-        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+        <div style="font-size:18px;font-weight:900;color:var(--text-main);">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg" style="color:var(--text-main);">
             <span class="ms">menu</span>
         </button>
     </div>
 
     <header style="margin-bottom:32px;">
-        <h1 style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.02em;">System Configuration</h1>
-        <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">OTA Firmware Management & Settings</p>
+        <h1 style="font-size:32px;font-weight:900;color:var(--text-main);letter-spacing:-.02em;">System Configuration</h1>
+        <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">OTA Firmware Management & Settings</p>
     </header>
 
     <div class="flex flex-col lg:grid lg:grid-cols-[2fr_1fr] gap-6 items-start">
         <!-- Left column: Firmware Upload -->
         <div class="glass" style="border-radius:20px;padding:32px;">
-            <h2 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+            <h2 style="font-size:12px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;margin-bottom:24px;display:flex;align-items:center;gap:8px;">
                 <span class="ms">system_update</span>Firmware Repository
             </h2>
 
             <form id="upload-form" th:action="@{/api/ota/versions}" method="POST" enctype="multipart/form-data">
                 <div style="margin-bottom:16px;">
-                    <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Version Tag</label>
+                    <label style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Version Tag</label>
                     <input type="text" name="version" placeholder="e.g. v1.2.0" required/>
                 </div>
                 <div style="margin-bottom:20px;">
-                    <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Binary</label>
+                    <label style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Binary</label>
                     <div class="upload-zone" id="drop-zone">
                         <input type="file" name="file" accept=".bin" id="file-input"
                                style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;" required/>
-                        <span class="ms" style="font-size:40px;color:rgba(138,235,255,.4);display:block;margin-bottom:8px;">upload_file</span>
-                        <p id="file-label" style="color:#859397;font-size:13px;">Click to select .bin file</p>
-                        <p style="color:rgba(133,147,151,.5);font-size:10px;margin-top:4px;">SHA-256 checksum auto-calculated</p>
+                        <span class="ms" style="font-size:40px;color:var(--text-muted);opacity:0.3;display:block;margin-bottom:8px;">upload_file</span>
+                        <p id="file-label" style="color:var(--text-muted);font-size:13px;">Click to select .bin file</p>
+                        <p style="color:var(--text-muted);opacity:0.5;font-size:10px;margin-top:4px;">SHA-256 checksum auto-calculated</p>
                     </div>
                 </div>
                 <button type="submit" id="upload-btn" class="btn-primary">Upload & Register Firmware</button>
                 <div id="progress-container" style="display:none;margin-top:16px;">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:#8aebff;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-ptit);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">
                         <span id="progress-text">Uploading...</span>
                         <span id="progress-percent">0%</span>
                     </div>
-                    <div style="height:6px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;">
-                        <div id="progress-bar" style="height:100%;width:0%;background:#8aebff;transition:width 0.2s;"></div>
+                    <div style="height:6px;background:var(--border-light);border-radius:10px;overflow:hidden;">
+                        <div id="progress-bar" style="height:100%;width:0%;background:var(--color-ptit);transition:width 0.2s;"></div>
                     </div>
                 </div>
             </form>
 
             <!-- Firmware List -->
-            <div th:if="${not #lists.isEmpty(firmwares)}" style="margin-top:32px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px;">
-                <h3 style="font-size:10px;font-weight:700;color:#859397;text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px;">Available Versions</h3>
+            <div th:if="${not #lists.isEmpty(firmwares)}" style="margin-top:32px;border-top:1px solid var(--border-light);padding-top:24px;">
+                <h3 style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px;">Available Versions</h3>
                 <div style="display:flex;flex-direction:column;gap:10px;">
                     <div th:each="fw : ${firmwares}"
-                         style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:12px;">
+                         style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border-light);border-radius:12px;">
                         <div>
-                            <div class="mono" style="font-size:14px;font-weight:600;color:#8aebff;" th:text="${fw.version}">v1.0.0</div>
-                            <div style="font-size:10px;color:#859397;margin-top:2px;" th:text="${fw.firmwareUrl}">path</div>
+                            <div class="mono" style="font-size:14px;font-weight:600;color:var(--text-main);" th:text="${fw.version}">v1.0.0</div>
+                            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" th:text="${fw.firmwareUrl}">path</div>
                         </div>
                         <span style="background:rgba(52,211,153,.1);color:#34d399;font-size:9px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:20px;">AVAILABLE</span>
                     </div>
                 </div>
             </div>
 
-            <div th:if="${#lists.isEmpty(firmwares)}" style="margin-top:24px;text-align:center;color:#859397;font-size:13px;">
+            <div th:if="${#lists.isEmpty(firmwares)}" style="margin-top:24px;text-align:center;color:var(--text-muted);font-size:13px;">
                 Chưa có firmware. Tải lên file .bin để bắt đầu.
             </div>
 
             <!-- Deploy OTA Form -->
-            <div style="margin-top:32px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px;">
-                <h3 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <div style="margin-top:32px;border-top:1px solid var(--border-light);padding-top:24px;">
+                <h3 style="font-size:12px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
                     <span class="ms">send_to_mobile</span>Deploy OTA Update
                 </h3>
                 <form id="ota-form" method="POST" action="/api/ota/trigger/0" onsubmit="this.action='/api/ota/trigger/' + document.getElementById('deviceIdSelect').value;">
                     <div style="margin-bottom:16px;">
-                        <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Target Device</label>
+                        <label style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Target Device</label>
                         <select id="deviceIdSelect" required th:disabled="${#lists.isEmpty(devices)}">
                             <option value="" disabled selected th:if="${not #lists.isEmpty(devices)}">Select a device</option>
                             <option value="" disabled selected th:if="${#lists.isEmpty(devices)}">No devices found</option>
@@ -154,7 +154,7 @@
                         </select>
                     </div>
                     <div style="margin-bottom:20px;">
-                        <label style="font-size:10px;color:#859397;text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Version</label>
+                        <label style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;font-weight:700;display:block;margin-bottom:8px;">Firmware Version</label>
                         <select name="firmwareId" required th:disabled="${#lists.isEmpty(firmwares)}">
                             <option value="" disabled selected th:if="${not #lists.isEmpty(firmwares)}">Select firmware version</option>
                             <option value="" disabled selected th:if="${#lists.isEmpty(firmwares)}">No firmware available</option>
@@ -169,29 +169,29 @@
         <!-- Right column: Info -->
         <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="glass" style="border-radius:16px;padding:24px;">
-                <h3 style="font-size:10px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
+                <h3 style="font-size:10px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
                     <span class="ms" style="vertical-align:middle;margin-right:6px;">info</span>OTA Process
                 </h3>
                 <ol style="list-style:decimal;padding-left:20px;display:flex;flex-direction:column;gap:10px;">
-                    <li style="font-size:12px;color:#859397;line-height:1.6;">Upload firmware .bin file tại đây</li>
-                    <li style="font-size:12px;color:#859397;line-height:1.6;">Vào trang <strong style="color:#dae2fd;">Devices</strong>, chọn firmware và nhấn <strong style="color:#8aebff;">OTA</strong></li>
-                    <li style="font-size:12px;color:#859397;line-height:1.6;">Server gửi lệnh qua MQTT đến ESP32</li>
-                    <li style="font-size:12px;color:#859397;line-height:1.6;">ESP32 tải file về, verify SHA256, cập nhật</li>
+                    <li style="font-size:12px;color:var(--text-muted);line-height:1.6;">Upload firmware .bin file tại đây</li>
+                    <li style="font-size:12px;color:var(--text-muted);line-height:1.6;">Vào trang <strong style="color:var(--text-main);">Devices</strong>, chọn firmware và nhấn <strong style="color:var(--color-ptit);">OTA</strong></li>
+                    <li style="font-size:12px;color:var(--text-muted);line-height:1.6;">Server gửi lệnh qua MQTT đến ESP32</li>
+                    <li style="font-size:12px;color:var(--text-muted);line-height:1.6;">ESP32 tải file về, verify SHA256, cập nhật</li>
                 </ol>
             </div>
 
             <div class="glass" style="border-radius:16px;padding:24px;">
-                <h3 style="font-size:10px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
+                <h3 style="font-size:10px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
                     <span class="ms" style="vertical-align:middle;margin-right:6px;">api</span>Telemetry API
                 </h3>
-                <div class="mono" style="font-size:11px;color:#8aebff;background:rgba(0,0,0,.4);padding:14px;border-radius:10px;line-height:1.8;">
-                    <div style="color:#859397;">POST</div>
+                <div class="mono" style="font-size:11px;color:var(--text-main);background:var(--bg-input);border:1px solid var(--border-light);padding:14px;border-radius:10px;line-height:1.8;">
+                    <div style="color:var(--text-muted);">POST</div>
                     <div>/api/telemetry/{deviceId}</div>
-                    <div style="color:#859397;margin-top:8px;">Body (JSON):</div>
+                    <div style="color:var(--text-muted);margin-top:8px;">Body (JSON):</div>
                     <div>{</div>
-                    <div>&nbsp;<span style="color:#8aebff">"temperature"</span>: <span style="color:#34d399">25.5</span>,</div>
-                    <div>&nbsp;<span style="color:#8aebff">"humidity"</span>: <span style="color:#34d399">60</span>,</div>
-                    <div>&nbsp;<span style="color:#8aebff">"free_heap"</span>: <span style="color:#34d399">45000</span></div>
+                    <div>&nbsp;<span style="color:var(--color-ptit)">"temperature"</span>: <span style="color:var(--status-online)">25.5</span>,</div>
+                    <div>&nbsp;<span style="color:var(--color-ptit)">"humidity"</span>: <span style="color:var(--status-online)">60</span>,</div>
+                    <div>&nbsp;<span style="color:var(--color-ptit)">"free_heap"</span>: <span style="color:var(--status-online)">45000</span></div>
                     <div>}</div>
                 </div>
             </div>
@@ -204,7 +204,7 @@
         const label = document.getElementById('file-label');
         if (this.files.length > 0) {
             label.textContent = this.files[0].name;
-            label.style.color = '#8aebff';
+            label.style.color = 'var(--text-main)';
         }
     });
 

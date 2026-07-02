@@ -17,44 +17,44 @@
 
     <style>
         :root {
-            --bg-body: #0d1117;
-            --bg-sidebar: #090d13;
-            --bg-card: #161b22;
-            --bg-input: #21262d;
-            --border-subtle: #21262d;
-            --border-focus: #38bdf8;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
+            --bg-body: #f4f6f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8f9fa;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --color-ptit: #b31d1d;
             --status-online: #10b981;
-            --status-offline: #f87171;
+            --status-offline: #ef4444;
         }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh;}
-        .glass { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+        .glass { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--card-shadow); }
         .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
-        .sidebar-link:hover { background: var(--bg-input); color: var(--text-main); }
-        .sidebar-link.active { background: transparent; color: var(--text-main); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
+        .sidebar-link:hover { background: var(--bg-input); color: var(--color-ptit); }
+        .sidebar-link.active { background: rgba(179, 29, 29, 0.08); color: var(--color-ptit); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
         .mono { font-family:'JetBrains Mono',monospace; }
         .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; }
         
-        .stat-badge { background: var(--bg-input); border-radius: 8px; padding: 4px 10px; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); }
+        .stat-badge { background: var(--bg-input); border-radius: 8px; padding: 4px 10px; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-light); }
         .stat-badge span { color: var(--text-main); font-weight: 700; margin-left: 4px; }
         
         .time-filter { padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: 1px solid transparent;}
-        .time-filter.active { background: var(--bg-input); color: var(--text-main); border-color: var(--border-subtle); }
-        .time-filter:hover:not(.active) { background: rgba(255,255,255,0.05); }
+        .time-filter.active { background: var(--bg-input); color: var(--color-ptit); border-color: var(--border-light); }
+        .time-filter:hover:not(.active) { background: var(--bg-input); }
 
         /* Customizing ApexCharts Tooltip for Dark Theme */
         .apexcharts-tooltip {
             background: var(--bg-card) !important;
-            border: 1px solid var(--border-subtle) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+            border: 1px solid var(--border-light) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
             color: var(--text-main) !important;
             border-radius: 8px !important;
         }
         .apexcharts-tooltip-title {
             background: var(--bg-input) !important;
-            border-bottom: 1px solid var(--border-subtle) !important;
+            border-bottom: 1px solid var(--border-light) !important;
             font-family: 'JetBrains Mono', monospace !important;
             font-size: 11px !important;
             font-weight: 600 !important;
@@ -80,7 +80,7 @@
 <!-- Mobile Overlay -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
+<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-light);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;display:flex;align-items:center;gap:14px;">
         <div style="width:42px;height:42px;flex-shrink:0;display:flex;justify-content:center;align-items:center;overflow:hidden;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Logo_PTIT_University.png" alt="PTIT Logo" style="width:130%;height:130%;object-fit:contain;"/>
@@ -108,8 +108,8 @@
 <main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
     <div class="lg:hidden flex justify-between items-center mb-6">
-        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+        <div style="font-size:18px;font-weight:900;color:var(--text-main);">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg" style="color:var(--text-main);">
             <span class="ms">menu</span>
         </button>
     </div>
@@ -118,10 +118,10 @@
     <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
         <div>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-                <span class="ms" style="color:#8aebff;font-size:28px;">insights</span>
-                <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Advanced Analytics</p>
+                <span class="ms" style="color:var(--color-ptit);font-size:28px;">insights</span>
+                <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Advanced Analytics</p>
             </div>
-            <h1 style="font-size:36px;font-weight:900;color:#fff;letter-spacing:-.02em;" th:text="${device.deviceName}">Device</h1>
+            <h1 style="font-size:36px;font-weight:900;color:var(--text-main);letter-spacing:-.02em;" th:text="${device.deviceName}">Device</h1>
         </div>
         <div style="display:flex;gap:12px;align-items:center;">
             <div class="glass" style="display:flex;padding:4px;border-radius:10px;">
@@ -130,10 +130,10 @@
                 <div class="time-filter">7D</div>
                 <div class="time-filter"><span class="ms" style="font-size:14px;vertical-align:middle;">calendar_month</span></div>
             </div>
-            <a th:href="'/api/export/' + ${device.id} + '/csv'" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg-input);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
+            <a th:href="'/api/export/' + ${device.id} + '/csv'" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg-input);color:var(--text-main);border:1px solid var(--border-light);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
                 <span class="ms" style="font-size:16px;">download</span>Export CSV
             </a>
-            <a th:href="'/dashboard/' + ${device.id}" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg-input);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
+            <a th:href="'/dashboard/' + ${device.id}" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg-input);color:var(--text-main);border:1px solid var(--border-light);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none;">
                 <span class="ms" style="font-size:16px;">dashboard</span>Live Dash
             </a>
         </div>
@@ -144,8 +144,8 @@
         <div class="glass" style="border-radius:20px;padding:24px;margin-bottom:24px;position:relative;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
                 <div>
-                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Environment (Temp & Humidity)</h2>
-                    <p style="font-size:12px;color:#859397;margin-top:4px;">Correlation between temperature and air humidity</p>
+                    <h2 style="font-size:16px;font-weight:800;color:var(--text-main);letter-spacing:-.01em;">Environment (Temp & Humidity)</h2>
+                    <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Correlation between temperature and air humidity</p>
                 </div>
                 <!-- Quick Stats for Env -->
                 <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-env">
@@ -157,8 +157,8 @@
             
             <div style="position:relative;min-height:350px;">
                 <div id="chart-environment" style="min-height: 350px;"></div>
-                <div id="empty-overlay-env" style="display:none;position:absolute;inset:0;background:rgba(11,19,38,0.6);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#859397;">
-                    <span class="ms" style="font-size:32px;color:rgba(138,235,255,.3);">show_chart</span>
+                <div id="empty-overlay-env" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.8);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text-muted);">
+                    <span class="ms" style="font-size:32px;opacity:0.3;">show_chart</span>
                     <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">No data available for the selected period</p>
                 </div>
             </div>
@@ -168,8 +168,8 @@
         <div class="glass" style="border-radius:20px;padding:24px;position:relative;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;gap:16px;">
                 <div>
-                    <h2 style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.01em;">Soil Moisture (Irrigation)</h2>
-                    <p style="font-size:12px;color:#859397;margin-top:4px;">Monitor soil dryness to activate water pump</p>
+                    <h2 style="font-size:16px;font-weight:800;color:var(--text-main);letter-spacing:-.01em;">Soil Moisture (Irrigation)</h2>
+                    <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Monitor soil dryness to activate water pump</p>
                 </div>
                 <!-- Quick Stats for Soil -->
                 <div style="display:flex;gap:12px;flex-wrap:wrap;" id="stats-soil">
@@ -180,8 +180,8 @@
             
             <div style="position:relative;min-height:250px;">
                 <div id="chart-soil" style="min-height: 250px;"></div>
-                <div id="empty-overlay-soil" style="display:none;position:absolute;inset:0;background:rgba(11,19,38,0.6);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#859397;">
-                    <span class="ms" style="font-size:32px;color:rgba(138,235,255,.3);">show_chart</span>
+                <div id="empty-overlay-soil" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.8);backdrop-filter:blur(4px);border-radius:12px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text-muted);">
+                    <span class="ms" style="font-size:32px;opacity:0.3;">show_chart</span>
                     <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">No data available for the selected period</p>
                 </div>
             </div>
@@ -189,9 +189,9 @@
     </div>
 
     <!-- No sensors -->
-    <div th:if="${#lists.isEmpty(sensors)}" class="glass" style="border-radius:16px;padding:60px;text-align:center;">
-        <span class="ms" style="font-size:56px;color:rgba(138,235,255,.2);">monitoring</span>
-        <p style="color:#859397;margin-top:16px;">No sensor data available. Waiting for telemetry...</p>
+    <div th:if="${#lists.isEmpty(sensors)}" style="border-radius:16px;padding:60px;text-align:center;background:var(--bg-input);border:1px dashed var(--border-light);">
+        <span class="ms" style="font-size:56px;color:var(--text-muted);opacity:0.3;">monitoring</span>
+        <p style="color:var(--text-muted);margin-top:16px;">No sensor data available. Waiting for telemetry...</p>
     </div>
 </main>
 
@@ -361,16 +361,16 @@
                 }
             ],
             grid: {
-                borderColor: '#21262d',
+                borderColor: '#e2e8f0',
                 strokeDashArray: 4
             },
             markers: { size: Math.max(tempSeries.length, humSeries.length) <= 1 ? 4 : 0, strokeWidth: 0, hover: { size: 6 } },
             legend: {
                 position: 'top',
                 horizontalAlign: 'right',
-                labels: { colors: '#dae2fd' }
+                labels: { colors: '#64748b' }
             },
-            theme: { mode: 'dark' }
+            theme: { mode: 'light' }
         };
 
         envChart = new ApexCharts(document.querySelector("#chart-environment"), envOptions);
@@ -453,11 +453,11 @@
                 ]
             },
             grid: {
-                borderColor: '#21262d',
+                borderColor: '#e2e8f0',
                 strokeDashArray: 4
             },
             markers: { size: soilSeries.length <= 1 ? 4 : 0, strokeWidth: 0, hover: { size: 6 } },
-            theme: { mode: 'dark' }
+            theme: { mode: 'light' }
         };
 
         soilChart = new ApexCharts(document.querySelector("#chart-soil"), soilOptions);

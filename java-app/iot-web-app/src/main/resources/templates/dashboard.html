@@ -13,29 +13,29 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
-            --bg-body: #0d1117;
-            --bg-sidebar: #090d13;
-            --bg-card: #161b22;
-            --bg-input: #21262d;
-            --border-subtle: #21262d;
-            --border-focus: #38bdf8;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
+            --bg-body: #f4f6f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8f9fa;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --color-ptit: #b31d1d;
             --status-online: #10b981;
-            --status-offline: #f87171;
+            --status-offline: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
-        .glass { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+        .glass { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--card-shadow); }
         .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
-        .sidebar-link:hover { background: var(--bg-input); color: var(--text-main); }
-        .sidebar-link.active { background: transparent; color: var(--text-main); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
+        .sidebar-link:hover { background: var(--bg-input); color: var(--color-ptit); }
+        .sidebar-link.active { background: rgba(179, 29, 29, 0.08); color: var(--color-ptit); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; }
-        .stat-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 24px; }
-        .device-row { display:flex; align-items:center; justify-content:space-between; padding:16px; border-radius:8px; background:var(--bg-input); border:1px solid var(--border-subtle); text-decoration:none; color:inherit; transition:all .2s; }
-        .device-row:hover { border-color:var(--border-focus); }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 24px; box-shadow: var(--card-shadow); }
+        .device-row { display:flex; align-items:center; justify-content:space-between; padding:16px; border-radius:8px; background:var(--bg-card); border:1px solid var(--border-light); box-shadow: var(--card-shadow); text-decoration:none; color:inherit; transition:all .2s; }
+        .device-row:hover { border-color:var(--color-ptit); }
         .pulse { animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
         .log-line { font-size:11px; line-height:1.7; color:var(--text-muted); }
@@ -60,7 +60,7 @@
 <!-- Mobile Overlay -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
+<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-light);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;display:flex;align-items:center;gap:14px;">
         <div style="width:42px;height:42px;flex-shrink:0;display:flex;justify-content:center;align-items:center;overflow:hidden;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Logo_PTIT_University.png" alt="PTIT Logo" style="width:130%;height:130%;object-fit:contain;"/>
@@ -86,8 +86,8 @@
 <main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
     <div class="lg:hidden flex justify-between items-center mb-6">
-        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+        <div style="font-size:18px;font-weight:900;color:var(--text-main);">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg" style="color:var(--text-main);">
             <span class="ms">menu</span>
         </button>
     </div>
@@ -95,13 +95,13 @@
     <!-- Page Header -->
     <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
         <div>
-            <h1 style="font-size:36px;font-weight:900;color:#fff;letter-spacing:-.02em;">System Dashboard</h1>
+            <h1 style="font-size:36px;font-weight:900;color:var(--text-main);letter-spacing:-.02em;">System Dashboard</h1>
             <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-                <span class="pulse" style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;"></span>
-                <span style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;">Live monitoring active</span>
+                <span class="pulse" style="width:8px;height:8px;background:var(--status-online);border-radius:50%;display:inline-block;"></span>
+                <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;">Live monitoring active</span>
             </div>
         </div>
-        <a href="/devices" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;text-decoration:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">
+        <a href="/devices" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:#fff;color:var(--text-main);border:1px solid var(--border-light);border-radius:10px;text-decoration:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;box-shadow:var(--card-shadow);transition:all .2s;" onmouseover="this.style.borderColor='var(--color-ptit)'" onmouseout="this.style.borderColor='var(--border-light)'">
             <span class="ms" style="font-size:16px;">add</span>Manage Devices
         </a>
     </div>
@@ -134,7 +134,7 @@
     <div class="flex flex-col xl:grid xl:grid-cols-[1fr_360px] gap-6 items-start">
         <!-- Device List -->
         <div>
-            <h2 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
+            <h2 style="font-size:12px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;margin-bottom:16px;">
                 <span class="ms" style="vertical-align:middle;margin-right:8px;font-size:16px;">hub</span>Node Status
             </h2>
             <div style="display:flex;flex-direction:column;gap:10px;">
@@ -142,25 +142,25 @@
                    th:href="'/dashboard/' + ${device.id}"
                    class="device-row">
                     <div style="display:flex;align-items:center;gap:16px;">
-                        <div style="width:44px;height:44px;border-radius:12px;background:rgba(138,235,255,.06);border:1px solid rgba(138,235,255,.12);display:flex;align-items:center;justify-content:center;color:#8aebff;">
+                        <div style="width:44px;height:44px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--text-main);">
                             <span class="ms">developer_board</span>
                         </div>
                         <div>
-                            <div style="font-size:15px;font-weight:700;color:#fff;" th:text="${device.deviceName}">Device</div>
-                            <div style="font-size:11px;color:#859397;margin-top:2px;">
+                            <div style="font-size:15px;font-weight:700;color:var(--text-main);" th:text="${device.deviceName}">Device</div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
                                 <span th:text="${device.location != null ? device.location : 'Unknown'}">Location</span>
-                                <span th:if="${device.category}"> • <span th:text="${device.category}" style="color:#8aebff;"></span></span>
+                                <span th:if="${device.category}"> • <span th:text="${device.category}" style="color:var(--text-main);"></span></span>
                             </div>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:16px;">
                         <div style="text-align:right;">
-                            <div style="font-size:10px;color:#859397;text-transform:uppercase;margin-bottom:4px;">ID</div>
-                            <div class="mono" style="font-size:12px;color:#8aebff;" th:text="${device.id}">0</div>
+                            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">ID</div>
+                            <div class="mono" style="font-size:12px;color:var(--text-main);" th:text="${device.id}">0</div>
                         </div>
                         <div th:if="${device.wifiRssi != null}" style="text-align:right;">
-                            <div style="font-size:10px;color:#859397;text-transform:uppercase;margin-bottom:4px;">RSSI</div>
-                            <div class="mono" style="font-size:12px;" th:text="${device.wifiRssi + ' dBm'}">N/A</div>
+                            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">RSSI</div>
+                            <div class="mono" style="font-size:12px;color:var(--text-main);" th:text="${device.wifiRssi + ' dBm'}">N/A</div>
                         </div>
                         <div>
                             <span th:id="'device-status-' + ${device.id}" th:style="${device.status != null and device.status.name() == 'ONLINE'} ? 'background:rgba(52,211,153,.12);color:#34d399;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;' : 'background:rgba(239,68,68,.12);color:#f87171;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;'"
@@ -176,20 +176,20 @@
 
             <!-- Empty state -->
             <div th:if="${#lists.isEmpty(devices)}" class="glass" style="border-radius:16px;padding:48px;text-align:center;">
-                <span class="ms" style="font-size:48px;color:rgba(138,235,255,.2);">developer_board</span>
-                <p style="color:#859397;margin-top:12px;font-size:13px;">Không có thiết bị nào. Thêm thiết bị qua trang <a href="/devices" style="color:#8aebff;">Devices</a>.</p>
+                <span class="ms" style="font-size:48px;color:var(--text-muted);opacity:0.3;">developer_board</span>
+                <p style="color:var(--text-muted);margin-top:12px;font-size:13px;">Không có thiết bị nào. Thêm thiết bị qua trang <a href="/devices" style="color:var(--color-ptit);font-weight:600;">Devices</a>.</p>
             </div>
         </div>
 
         <!-- Live Telemetry Feed -->
         <div class="glass" style="border-radius:16px;padding:24px;position:sticky;top:24px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h2 style="font-size:12px;font-weight:700;color:#8aebff;text-transform:uppercase;letter-spacing:.2em;">
+                <h2 style="font-size:12px;font-weight:700;color:var(--text-main);text-transform:uppercase;letter-spacing:.2em;">
                     <span class="ms" style="vertical-align:middle;margin-right:6px;font-size:16px;">terminal</span>Live Feed
                 </h2>
-                <span class="pulse" style="width:6px;height:6px;background:#34d399;border-radius:50%;display:inline-block;"></span>
+                <span class="pulse" style="width:6px;height:6px;background:var(--status-online);border-radius:50%;display:inline-block;"></span>
             </div>
-            <div id="live-feed" style="height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
+            <div id="live-feed" style="height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;background:var(--bg-input);padding:16px;border-radius:8px;border:1px solid var(--border-light);">
                 <div class="log-line"><span class="ts">[SYSTEM]</span>Waiting for telemetry...</div>
             </div>
         </div>

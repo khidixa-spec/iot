@@ -11,28 +11,28 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
-            --bg-body: #0d1117;
-            --bg-sidebar: #090d13;
-            --bg-card: #161b22;
-            --bg-input: #21262d;
-            --border-subtle: #21262d;
-            --border-focus: #38bdf8;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
+            --bg-body: #f4f6f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8f9fa;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --color-ptit: #b31d1d;
             --status-online: #10b981;
-            --status-offline: #f87171;
+            --status-offline: #ef4444;
         }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Inter', system-ui, sans-serif; }
-        .glass { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+        .glass { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--card-shadow); }
         .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; text-decoration:none; transition:all .2s; }
-        .sidebar-link:hover { background: var(--bg-input); color: var(--text-main); }
-        .sidebar-link.active { background: transparent; color: var(--text-main); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
+        .sidebar-link:hover { background: var(--bg-input); color: var(--color-ptit); }
+        .sidebar-link.active { background: rgba(179, 29, 29, 0.08); color: var(--color-ptit); border-left: 3px solid var(--color-ptit); border-radius: 0 8px 8px 0; }
         .status-online { background:rgba(16,185,129,.15); color:var(--status-online); border: 1px solid rgba(16,185,129,.3); }
-        .status-offline { background:rgba(248,113,113,.15); color:var(--status-offline); border: 1px solid rgba(248,113,113,.3); }
-        .card-btn { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:8px; background: transparent; border:1px solid var(--border-subtle); color:var(--text-main); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; text-decoration:none; transition:all .2s; }
-        .card-btn:hover { border-color: var(--border-focus); color: var(--border-focus); }
-        select, button[type=submit] { background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius:8px; color:var(--text-main); font-size:11px; padding:6px 10px; }
+        .status-offline { background:rgba(239,68,68,.15); color:var(--status-offline); border: 1px solid rgba(239,68,68,.3); }
+        .card-btn { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:8px; background: transparent; border:1px solid var(--border-light); color:var(--text-main); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; text-decoration:none; transition:all .2s; }
+        .card-btn:hover { border-color: var(--color-ptit); color: var(--color-ptit); }
+        select, button[type=submit] { background: var(--bg-input); border: 1px solid var(--border-light); border-radius:8px; color:var(--text-main); font-size:11px; padding:6px 10px; }
         button[type=submit] { background: var(--color-ptit); color: #fff; cursor:pointer; font-weight: 700; border: none; }
         button[type=submit]:hover { opacity: 0.9; }
         .ms { font-family:'Material Symbols Outlined'; font-size:20px; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; display:inline-block; direction:ltr; }
@@ -52,7 +52,7 @@
 <!-- Mobile Overlay -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
+<aside id="sidebar" style="z-index:50; background: var(--bg-sidebar); border-right: 1px solid var(--border-light);" class="flex flex-col fixed left-0 top-0 w-[240px] h-[100vh] p-[24px_16px] transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <div style="margin-bottom:32px;padding:0 8px;display:flex;align-items:center;gap:14px;">
         <div style="width:42px;height:42px;flex-shrink:0;display:flex;justify-content:center;align-items:center;overflow:hidden;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Logo_PTIT_University.png" alt="PTIT Logo" style="width:130%;height:130%;object-fit:contain;"/>
@@ -78,18 +78,18 @@
 <main class="lg:ml-[240px] p-6 lg:p-8 min-h-screen">
     <!-- Mobile Header -->
     <div class="lg:hidden flex justify-between items-center mb-6">
-        <div style="font-size:18px;font-weight:900;color:#8aebff;">IOT_SENTRY</div>
-        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg text-[#8aebff]">
+        <div style="font-size:18px;font-weight:900;color:var(--text-main);">IOT_SENTRY</div>
+        <button onclick="toggleSidebar()" class="glass p-2 rounded-lg" style="color:var(--text-main);">
             <span class="ms">menu</span>
         </button>
     </div>
 
     <header style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;">
         <div>
-            <h1 style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.02em;">Device Nodes</h1>
-            <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Network Infrastructure & Management</p>
+            <h1 style="font-size:32px;font-weight:900;color:var(--text-main);letter-spacing:-.02em;">Device Nodes</h1>
+            <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Network Infrastructure & Management</p>
         </div>
-        <button onclick="document.getElementById('addDeviceModal').style.display='flex'" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(138,235,255,.1);color:#8aebff;border:1px solid rgba(138,235,255,.2);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(138,235,255,.2)'" onmouseout="this.style.background='rgba(138,235,255,.1)'">
+        <button onclick="document.getElementById('addDeviceModal').style.display='flex'" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:#fff;color:var(--text-main);border:1px solid var(--border-light);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;box-shadow:var(--card-shadow);" onmouseover="this.style.borderColor='var(--color-ptit)'" onmouseout="this.style.borderColor='var(--border-light)'">
             <span class="ms" style="font-size:18px;">add</span> Add Device
         </button>
     </header>
@@ -111,10 +111,10 @@
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
-        <div th:each="device : ${devices}" class="device-card glass" th:data-id="${device.id}" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(138,235,255,.4)'" onmouseout="this.style.borderColor='rgba(138,235,255,.08)'">
+        <div th:each="device : ${devices}" class="device-card glass" th:data-id="${device.id}" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--color-ptit)'" onmouseout="this.style.borderColor='var(--border-light)'">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div style="width:48px;height:48px;border-radius:12px;background:rgba(138,235,255,.08);border:1px solid rgba(138,235,255,.15);display:flex;align-items:center;justify-content:center;color:#8aebff;">
+                <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--text-main);">
                     <span class="ms" style="font-size:28px;" th:text="${device.typeId == 2 ? 'mode_fan' : 'developer_board'}">developer_board</span>
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -145,14 +145,14 @@
             <!-- Info -->
             <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <h3 style="font-size:18px;font-weight:700;color:#fff;" th:text="${device.deviceName}">Device Name</h3>
-                    <span th:if="${device.category}" style="font-size:9px;background:rgba(138,235,255,.08);color:#8aebff;border:1px solid rgba(138,235,255,.15);padding:2px 8px;border-radius:20px;" th:text="${device.category}">Category</span>
+                    <h3 style="font-size:18px;font-weight:700;color:var(--text-main);" th:text="${device.deviceName}">Device Name</h3>
+                    <span th:if="${device.category}" style="font-size:9px;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border-light);padding:2px 8px;border-radius:20px;" th:text="${device.category}">Category</span>
                 </div>
-                <p style="font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;">
+                <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">
                     <span th:text="${(device.location != null ? device.location : 'N/A')}">Location</span>
                 </p>
                 <div style="margin-top:8px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:6px;padding:6px 10px;margin-bottom:6px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border:1px solid var(--border-light);border-radius:6px;padding:6px 10px;margin-bottom:6px;">
                         <span style="font-size:10px;color:var(--text-muted);font-weight:700;display:flex;align-items:center;gap:6px;">
                             <span class="ms" style="font-size:14px;">key</span>
                             <span th:id="'token-hidden-' + ${device.id}">••••••••••••••••••••</span>
@@ -163,7 +163,7 @@
                             <button type="button" class="btn-copy-token" th:data-token="${device.deviceUid}" style="background:none;border:none;color:var(--text-muted);cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
                         </div>
                     </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;background:#0d1117;border:1px solid var(--border-subtle);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;" onclick="event.stopPropagation();">
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:#f1f5f9;border:1px solid var(--border-light);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono', monospace;font-size:10px;color:var(--status-online);" onclick="event.stopPropagation();">
                         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">iot/sensor/data/<span th:text="${device.deviceUid}"></span></span>
                         <button type="button" class="btn-copy-topic" th:data-topic="${device.deviceUid}" style="background:none;border:none;color:var(--text-muted);cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
                     </div>
@@ -177,7 +177,7 @@
             </div>
 
             <!-- OTA -->
-            <div style="border-top:1px solid var(--border-subtle);padding-top:16px;" onclick="event.stopPropagation();">
+            <div style="border-top:1px solid var(--border-light);padding-top:16px;" onclick="event.stopPropagation();">
                 <a href="/settings" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--color-ptit);color:#fff;border:none;border-radius:8px;padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
                     <span class="ms" style="font-size:16px;">system_update</span>Update OTA
                 </a>
@@ -186,68 +186,68 @@
     </div>
 
     <div th:if="${#lists.isEmpty(devices)}" style="text-align:center;padding:80px 20px;">
-        <span class="ms" style="font-size:64px;color:rgba(138,235,255,.2);">developer_board</span>
-        <p style="color:#859397;margin-top:16px;font-size:14px;">Chưa có thiết bị nào. Thêm thiết bị qua API hoặc database.</p>
+        <span class="ms" style="font-size:64px;color:var(--text-muted);opacity:0.3;">developer_board</span>
+        <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">Chưa có thiết bị nào. Thêm thiết bị qua API hoặc database.</p>
     </div>
 </main>
 
 <!-- Add Device Modal -->
-<div id="addDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(11,19,38,.8);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
-    <div style="background:rgba(23,31,51,1);border:1px solid rgba(138,235,255,.15);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,.4);">
+<div id="addDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:var(--card-shadow);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-            <h2 style="font-size:18px;font-weight:800;color:#fff;">Thêm Thiết Bị Mới</h2>
-            <button type="button" onclick="document.getElementById('addDeviceModal').style.display='none'" style="background:none;border:none;color:#859397;cursor:pointer;"><span class="ms">close</span></button>
+            <h2 style="font-size:18px;font-weight:800;color:var(--text-main);">Thêm Thiết Bị Mới</h2>
+            <button type="button" onclick="document.getElementById('addDeviceModal').style.display='none'" style="background:none;border:none;color:var(--text-muted);cursor:pointer;"><span class="ms">close</span></button>
         </div>
         <form action="/devices/add" method="POST" style="display:flex;flex-direction:column;gap:16px;">
 
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
-                <input type="text" name="deviceName" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" placeholder="e.g. ESP32-Garden" />
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
+                <input type="text" name="deviceName" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'" placeholder="e.g. ESP32-Garden" />
             </div>
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
-                <select name="category" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
+                <select name="category" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'">
                     <option value="" disabled selected>Chọn phân loại...</option>
-                    <option value="Vườn" style="background:#0b1326;color:#fff;">Vườn</option>
-                    <option value="Nhà" style="background:#0b1326;color:#fff;">Nhà</option>
-                    <option value="Nhà máy" style="background:#0b1326;color:#fff;">Nhà máy</option>
+                    <option value="Vườn" style="background:#fff;color:var(--text-main);">Vườn</option>
+                    <option value="Nhà" style="background:#fff;color:var(--text-main);">Nhà</option>
+                    <option value="Nhà máy" style="background:#fff;color:var(--text-main);">Nhà máy</option>
                 </select>
             </div>
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
-                <input type="text" name="location" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" placeholder="e.g. Ngoài vườn" />
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
+                <input type="text" name="location" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'" placeholder="e.g. Ngoài vườn" />
             </div>
-            <button type="submit" style="margin-top:8px;width:100%;background:#8aebff;color:#0b1326;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Save Device</button>
+            <button type="submit" style="margin-top:8px;width:100%;background:var(--color-ptit);color:#fff;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Save Device</button>
         </form>
     </div>
 </div>
 
 <!-- Edit Device Modal -->
-<div id="editDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(11,19,38,.8);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
-    <div style="background:rgba(23,31,51,1);border:1px solid rgba(138,235,255,.15);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,.4);">
+<div id="editDeviceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:24px;padding:32px;width:100%;max-width:400px;box-shadow:var(--card-shadow);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-            <h2 style="font-size:18px;font-weight:800;color:#fff;">Sửa Thiết Bị</h2>
-            <button type="button" onclick="document.getElementById('editDeviceModal').style.display='none'" style="background:none;border:none;color:#859397;cursor:pointer;"><span class="ms">close</span></button>
+            <h2 style="font-size:18px;font-weight:800;color:var(--text-main);">Sửa Thiết Bị</h2>
+            <button type="button" onclick="document.getElementById('editDeviceModal').style.display='none'" style="background:none;border:none;color:var(--text-muted);cursor:pointer;"><span class="ms">close</span></button>
         </div>
         <form id="editDeviceForm" method="POST" style="display:flex;flex-direction:column;gap:16px;">
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
-                <input type="text" id="editDeviceName" name="deviceName" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Device Name</label>
+                <input type="text" id="editDeviceName" name="deviceName" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'" />
             </div>
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
-                <select id="editCategory" name="category" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Category (Phân loại)</label>
+                <select id="editCategory" name="category" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'">
                     <option value="" disabled>Chọn phân loại...</option>
-                    <option value="Vườn" style="background:#0b1326;color:#fff;">Vườn</option>
-                    <option value="Nhà" style="background:#0b1326;color:#fff;">Nhà</option>
-                    <option value="Nhà máy" style="background:#0b1326;color:#fff;">Nhà máy</option>
+                    <option value="Vườn" style="background:#fff;color:var(--text-main);">Vườn</option>
+                    <option value="Nhà" style="background:#fff;color:var(--text-main);">Nhà</option>
+                    <option value="Nhà máy" style="background:#fff;color:var(--text-main);">Nhà máy</option>
                 </select>
             </div>
             <div>
-                <label style="display:block;font-size:11px;color:#859397;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
-                <input type="text" id="editLocation" name="location" required style="width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='#8aebff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700;">Location</label>
+                <input type="text" id="editLocation" name="location" required style="width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;color:var(--text-main);font-family:'Inter',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='var(--color-ptit)'" onblur="this.style.borderColor='var(--border-light)'" />
             </div>
-            <button type="submit" style="margin-top:8px;width:100%;background:#fbbf24;color:#0b1326;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Update Device</button>
+            <button type="submit" style="margin-top:8px;width:100%;background:var(--color-ptit);color:#fff;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Update Device</button>
         </form>
     </div>
 </div>
