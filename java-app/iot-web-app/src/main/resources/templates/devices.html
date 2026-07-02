@@ -89,7 +89,7 @@
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
-        <div th:each="device : ${devices}" class="glass" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(138,235,255,.4)'" onmouseout="this.style.borderColor='rgba(138,235,255,.08)'" th:onclick="|window.location.href='/dashboard/${device.id}'|">
+        <div th:each="device : ${devices}" class="device-card glass" th:data-id="${device.id}" style="border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(138,235,255,.4)'" onmouseout="this.style.borderColor='rgba(138,235,255,.08)'">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="width:48px;height:48px;border-radius:12px;background:rgba(138,235,255,.08);border:1px solid rgba(138,235,255,.15);display:flex;align-items:center;justify-content:center;color:#8aebff;">
@@ -103,16 +103,15 @@
                         <div style="font-size:10px;color:#859397;margin-top:4px;" th:text="${device.freeHeap != null ? 'RAM: ' + device.freeHeap + 'B' : 'RAM: N/A'}">RAM: N/A</div>
                     </div>
                     <div style="display:flex;gap:4px;" onclick="event.stopPropagation();">
-                        <button type="button" 
-                                th:data-id="${device.id}" 
-                                th:data-name="${device.deviceName}" 
-                                th:data-category="${device.category}" 
-                                th:data-location="${device.location}" 
-                                onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-category'), this.getAttribute('data-location'))" 
+                        <button type="button" class="btn-edit"
+                                th:data-id="${device.id}"
+                                th:data-name="${device.deviceName}"
+                                th:data-category="${device.category}"
+                                th:data-location="${device.location}"
                                 style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(251,191,36,.2)'" onmouseout="this.style.background='rgba(251,191,36,.1)'" title="Sửa thiết bị">
                             <span class="ms" style="font-size:16px;">edit</span>
                         </button>
-                        <form th:action="|/devices/delete/${device.id}|" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị này không?');">
+                        <form th:action="@{/devices/delete/{id}(id=${device.id})}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị này không?');">
                             <button type="submit" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(239,68,68,.1)'" title="Xóa thiết bị">
                                 <span class="ms" style="font-size:16px;">delete</span>
                             </button>
@@ -134,17 +133,17 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid rgba(167,139,250,.2);border-radius:6px;padding:6px 10px;margin-bottom:6px;">
                         <span style="font-size:10px;color:#a78bfa;font-weight:700;display:flex;align-items:center;gap:6px;">
                             <span class="ms" style="font-size:14px;">key</span>
-                            <span th:id="|token-hidden-${device.id}|">••••••••••••••••••••</span>
-                            <span class="mono" th:id="|token-show-${device.id}|" style="display:none;" th:text="${device.deviceUid}">UID</span>
+                            <span th:id="'token-hidden-' + ${device.id}">••••••••••••••••••••</span>
+                            <span class="mono" th:id="'token-show-' + ${device.id}" style="display:none;" th:text="${device.deviceUid}">UID</span>
                         </span>
                         <div style="display:flex;gap:4px;" onclick="event.stopPropagation();">
-                            <button type="button" th:onclick="|toggleToken('${device.id}')|" style="background:none;border:none;color:#859397;cursor:pointer;" title="Show/Hide Token"><span class="ms" style="font-size:14px;" th:id="|token-icon-${device.id}|">visibility</span></button>
-                            <button type="button" th:onclick="|copyToClipboard('${device.deviceUid}', 'Token')|" style="background:none;border:none;color:#859397;cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                            <button type="button" class="btn-toggle-token" th:data-device-id="${device.id}" style="background:none;border:none;color:#859397;cursor:pointer;" title="Show/Hide Token"><span class="ms" style="font-size:14px;" th:id="'token-icon-' + ${device.id}">visibility</span></button>
+                            <button type="button" class="btn-copy-token" th:data-token="${device.deviceUid}" style="background:none;border:none;color:#859397;cursor:pointer;" title="Copy Token"><span class="ms" style="font-size:14px;">content_copy</span></button>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono', monospace;font-size:10px;color:#34d399;" onclick="event.stopPropagation();">
                         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">iot/sensor/data/<span th:text="${device.deviceUid}"></span></span>
-                        <button type="button" th:onclick="|copyToClipboard('iot/sensor/data/${device.deviceUid}', 'Topic')|" style="background:none;border:none;color:#859397;cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
+                        <button type="button" class="btn-copy-topic" th:data-topic="${device.deviceUid}" style="background:none;border:none;color:#859397;cursor:pointer;flex-shrink:0;" title="Copy Topic"><span class="ms" style="font-size:14px;">content_copy</span></button>
                     </div>
                 </div>
             </div>
@@ -252,7 +251,6 @@ function toggleToken(id) {
     const hidden = document.getElementById('token-hidden-' + id);
     const show = document.getElementById('token-show-' + id);
     const icon = document.getElementById('token-icon-' + id);
-    
     if (show.style.display === 'none') {
         hidden.style.display = 'none';
         show.style.display = 'inline';
@@ -271,7 +269,7 @@ function copyToClipboard(text, type) {
             duration: 3000, close: true, gravity: "bottom", position: "right",
             style: { background: "#34d399", color: "#000", fontWeight: "bold", borderRadius: "8px" }
         }).showToast();
-    }).catch(err => {
+    }).catch(() => {
         Toastify({
             text: "Failed to copy",
             duration: 3000, close: true, gravity: "bottom", position: "right",
@@ -279,6 +277,53 @@ function copyToClipboard(text, type) {
         }).showToast();
     });
 }
+
+// Event delegation - replaces all th:onclick to avoid Thymeleaf parsing errors
+document.addEventListener('DOMContentLoaded', function() {
+    // Card click -> navigate to dashboard
+    document.querySelectorAll('.device-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            window.location.href = '/dashboard/' + card.getAttribute('data-id');
+        });
+    });
+
+    // Edit button
+    document.querySelectorAll('.btn-edit').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openEditModal(
+                btn.getAttribute('data-id'),
+                btn.getAttribute('data-name'),
+                btn.getAttribute('data-category'),
+                btn.getAttribute('data-location')
+            );
+        });
+    });
+
+    // Toggle token visibility
+    document.querySelectorAll('.btn-toggle-token').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleToken(btn.getAttribute('data-device-id'));
+        });
+    });
+
+    // Copy token
+    document.querySelectorAll('.btn-copy-token').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyToClipboard(btn.getAttribute('data-token'), 'Token');
+        });
+    });
+
+    // Copy topic
+    document.querySelectorAll('.btn-copy-topic').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyToClipboard('iot/sensor/data/' + btn.getAttribute('data-topic'), 'Topic');
+        });
+    });
+});
 </script>
 
 </body>
