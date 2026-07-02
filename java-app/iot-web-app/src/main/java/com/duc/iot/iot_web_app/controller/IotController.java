@@ -165,6 +165,15 @@ public class IotController {
         return "redirect:/devices";
     }
 
+    @GetMapping("/analytics")
+    public String generalAnalytics() {
+        List<Device> devices = deviceRepository.findAll();
+        if (devices.isEmpty()) {
+            return "redirect:/devices";
+        }
+        return "redirect:/analytics/" + devices.get(0).getId();
+    }
+
     @GetMapping("/analytics/{id}")
     public String analytics(@PathVariable Long id, Model model) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
