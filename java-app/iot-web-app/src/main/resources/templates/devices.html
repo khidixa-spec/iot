@@ -11,12 +11,12 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
-            --bg-body: #f4f6f9;
+            --bg-body: #f1f5f9;
             --bg-sidebar: #ffffff;
             --bg-card: #ffffff;
             --bg-input: #f8f9fa;
             --border-light: #e2e8f0;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --color-ptit: #b31d1d;
@@ -87,7 +87,7 @@
     <header style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end;">
         <div>
             <h1 style="font-size:32px;font-weight:900;color:var(--text-main);letter-spacing:-.02em;">Device Nodes</h1>
-            <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;">Network Infrastructure & Management</p>
+            <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-top:4px;line-height:1.5;">Network Infrastructure & Management</p>
         </div>
         <button onclick="document.getElementById('addDeviceModal').style.display='flex'" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:#fff;color:var(--text-main);border:1px solid var(--border-light);border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .2s;box-shadow:var(--card-shadow);" onmouseover="this.style.borderColor='var(--color-ptit)'" onmouseout="this.style.borderColor='var(--border-light)'">
             <span class="ms" style="font-size:18px;">add</span> Add Device
@@ -105,9 +105,10 @@
     </div>
 
     <!-- No firmware warning -->
-    <div th:if="${#lists.isEmpty(firmwares)}" style="margin-bottom:16px;padding:14px 20px;background:rgba(245,158,11,.1);border:1px solid #f59e0b;border-radius:8px;color:#f59e0b;font-size:12px;display:flex;align-items:center;gap:10px;">
-        <span class="ms" style="font-size:18px;">warning</span>
-        Chưa có firmware. Vào <a href="/settings" style="color:#f59e0b;font-weight:700;text-decoration:underline;">Update OTA</a> để upload file .bin trước khi OTA.
+    <!-- No firmware warning -->
+    <div th:if="${#lists.isEmpty(firmwares)}" style="margin-bottom:16px;padding:14px 20px;background:#FEF3C7;border:1px solid #FBBF24;border-radius:8px;color:#78350F;font-size:12px;display:flex;align-items:center;gap:10px;">
+        <span class="ms" style="font-size:18px;color:#92400E;">warning</span>
+        Chưa có firmware. Vào <a href="/settings" style="color:#92400E;font-weight:700;text-decoration:underline;">Update OTA</a> để upload file .bin trước khi OTA.
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
