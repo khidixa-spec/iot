@@ -32,6 +32,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db-web-iot:3306/iot_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=duc_user
       - SPRING_DATASOURCE_PASSWORD=duc_password_123
+      - MQTT_BROKER_URL=ssl://10cf23427b77452faec8dc86e09f1bc1.s1.eu.hivemq.cloud:8883
+      - MQTT_USERNAME=tienduc
+      - MQTT_PASSWORD=D@ucffgh123
 
   # Service 3: MQTT Broker (Mosquitto)
   mosquitto-iot-web:

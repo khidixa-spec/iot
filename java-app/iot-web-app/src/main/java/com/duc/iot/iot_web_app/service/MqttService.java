@@ -118,17 +118,23 @@ public class MqttService implements MqttCallback {
 
             java.util.List<SensorReading> newReadings = new java.util.ArrayList<>();
 
-            if (data.has("temperature")) {
-                newReadings.add(createReading(device, "Nhiệt độ", Sensor.SensorType.TEMPERATURE, data.get("temperature").asDouble(), payloadTime));
-                objectNode.put("Nhiệt độ", data.get("temperature").asDouble());
-            }
-            if (data.has("humidity")) {
-                newReadings.add(createReading(device, "Độ ẩm không khí", Sensor.SensorType.HUMIDITY, data.get("humidity").asDouble(), payloadTime));
-                objectNode.put("Độ ẩm không khí", data.get("humidity").asDouble());
-            }
-            if (data.has("soil")) {
-                newReadings.add(createReading(device, "Độ ẩm đất", Sensor.SensorType.CUSTOM, data.get("soil").asDouble(), payloadTime));
-                objectNode.put("Độ ẩm đất", data.get("soil").asDouble());
+            java.util.Iterator<java.util.Map.Entry<String, JsonNode>> fields = data.fields();
+            while (fields.hasNext()) {
+                java.util.Map.Entry<String, JsonNode> entry = fields.next();
+                String key = entry.getKey();
+                JsonNode value = entry.getValue();
+                if (value.isNumber()) {
+                    String sensorName = key;
+                    Sensor.SensorType type = Sensor.SensorType.CUSTOM;
+                    if (key.equals("temperature")) { sensorName = "Nhiệt độ"; type = Sensor.SensorType.TEMPERATURE; }
+                    else if (key.equals("humidity")) { sensorName = "Độ ẩm không khí"; type = Sensor.SensorType.HUMIDITY; }
+                    else if (key.equals("soil")) { sensorName = "Độ ẩm đất"; }
+                    else if (key.equals("soil1")) { sensorName = "Độ ẩm đất 1"; }
+                    else if (key.equals("soil2")) { sensorName = "Độ ẩm đất 2"; }
+                    
+                    newReadings.add(createReading(device, sensorName, type, value.asDouble(), payloadTime));
+                    objectNode.put(sensorName, value.asDouble());
+                }
             }
 
             if (!newReadings.isEmpty()) {
