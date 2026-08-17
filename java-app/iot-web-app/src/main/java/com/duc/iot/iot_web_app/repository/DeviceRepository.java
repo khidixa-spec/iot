@@ -13,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Long> {
     Optional<Device> findByDeviceUid(String deviceUid);
-    List<Device> findByStatusAndLastSeenBefore(Device.Status status, LocalDateTime time);
 
     @Query("SELECT d FROM Device d WHERE d.status = :status AND (d.lastSeen < :time OR d.lastSeen IS NULL)")
     List<Device> findByStatusAndLastSeenBeforeOrNull(@Param("status") Device.Status status, @Param("time") LocalDateTime time);

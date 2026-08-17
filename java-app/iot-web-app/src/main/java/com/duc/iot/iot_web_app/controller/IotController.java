@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.duc.iot.iot_web_app.model.Device;
 import com.duc.iot.iot_web_app.model.Sensor;
@@ -25,20 +28,25 @@ import com.duc.iot.iot_web_app.repository.DeviceRepository;
 import com.duc.iot.iot_web_app.repository.FirmwareVersionRepository;
 import com.duc.iot.iot_web_app.repository.SensorReadingRepository;
 import com.duc.iot.iot_web_app.repository.SensorRepository;
+import com.duc.iot.iot_web_app.service.MqttService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 public class IotController {
 
-    @Autowired
-    private SensorRepository sensorRepository;
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-    @Autowired
-    private DeviceRepository deviceRepository;
-    @Autowired
-    private SensorReadingRepository readingRepository;
-    @Autowired
-    private FirmwareVersionRepository firmwareRepository;
+    private static final Logger log = LoggerFactory.getLogger(IotController.class);
+
+    private final SensorRepository sensorRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final DeviceRepository deviceRepository;
+    private final SensorReadingRepository readingRepository;
+    private final FirmwareVersionRepository firmwareRepository;
+    private final MqttService mqttService;
+    private final ObjectMapper objectMapper;
 
     // --- TRANG WEB ---
     @GetMapping("/")
@@ -70,17 +78,16 @@ public class IotController {
         List<Sensor> sensors = device.getSensors() != null ? device.getSensors() : new ArrayList<>();
         Map<String, Double> latestReadings = new LinkedHashMap<>();
         for (Sensor s : sensors) {
-            SensorReading reading = readingRepository
-                    .findFirstBySensorIdOrderByRecordedAtDesc(s.getId());
+            SensorReading reading = readingRepository.findFirstBySensorIdOrderByRecordedAtDesc(s.getId());
             if (reading != null) {
                 latestReadings.put(s.getSensorName(), reading.getRawValue());
             }
         }
-        
+
         // Lấy dữ liệu thật cho biểu đồ Activity
         List<String> chartLabels = new ArrayList<>();
         List<Double> chartData = new ArrayList<>();
-        
+
         if (!sensors.isEmpty()) {
             // Dùng sensor đầu tiên (thường là Nhiệt độ) làm mốc cho biểu đồ mini
             Sensor firstSensor = sensors.get(0);
@@ -92,12 +99,12 @@ public class IotController {
                 chartData.add(r.getRawValue());
             }
         }
-        
+
         try {
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            model.addAttribute("chartLabels", mapper.writeValueAsString(chartLabels));
-            model.addAttribute("chartData", mapper.writeValueAsString(chartData));
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            model.addAttribute("chartLabels", objectMapper.writeValueAsString(chartLabels));
+            model.addAttribute("chartData", objectMapper.writeValueAsString(chartData));
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing chart data for device {}", id, e);
             model.addAttribute("chartLabels", "[]");
             model.addAttribute("chartData", "[]");
         }
@@ -112,7 +119,7 @@ public class IotController {
     public String addDevice(@RequestParam String deviceName,
             @RequestParam String category,
             @RequestParam String location,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Device device = new Device();
             String generatedToken = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 20);
@@ -125,17 +132,19 @@ public class IotController {
             deviceRepository.save(device);
             redirectAttributes.addFlashAttribute("success", "Device " + deviceName + " added successfully!");
         } catch (Exception e) {
+            log.error("Failed to add device '{}'", deviceName, e);
             redirectAttributes.addFlashAttribute("error", "Failed to add device.");
         }
         return "redirect:/devices";
     }
 
     @PostMapping("/devices/delete/{id}")
-    public String deleteDevice(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    public String deleteDevice(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             deviceRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Device deleted successfully.");
         } catch (Exception e) {
+            log.error("Failed to delete device {}", id, e);
             redirectAttributes.addFlashAttribute("error", "Failed to delete device.");
         }
         return "redirect:/devices";
@@ -146,20 +155,21 @@ public class IotController {
             @RequestParam String deviceName,
             @RequestParam String category,
             @RequestParam String location,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
+        Optional<Device> deviceOpt = deviceRepository.findById(id);
+        if (deviceOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Device not found.");
+            return "redirect:/devices";
+        }
         try {
-            Optional<Device> deviceOpt = deviceRepository.findById(id);
-            if (deviceOpt.isPresent()) {
-                Device device = deviceOpt.get();
-                device.setDeviceName(deviceName);
-                device.setCategory(category);
-                device.setLocation(location);
-                deviceRepository.save(device);
-                redirectAttributes.addFlashAttribute("success", "Device updated successfully.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Device not found.");
-            }
+            Device device = deviceOpt.get();
+            device.setDeviceName(deviceName);
+            device.setCategory(category);
+            device.setLocation(location);
+            deviceRepository.save(device);
+            redirectAttributes.addFlashAttribute("success", "Device updated successfully.");
         } catch (Exception e) {
+            log.error("Failed to update device {}", id, e);
             redirectAttributes.addFlashAttribute("error", "Failed to update device.");
         }
         return "redirect:/devices";
@@ -196,8 +206,9 @@ public class IotController {
             historicalData.put(s.getSensorName(), sensorData);
         }
         try {
-            model.addAttribute("historicalDataJson", new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(historicalData));
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            model.addAttribute("historicalDataJson", objectMapper.writeValueAsString(historicalData));
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing historical data for device {}", id, e);
             model.addAttribute("historicalDataJson", "{}");
         }
 
@@ -220,27 +231,26 @@ public class IotController {
         return "IoT System Ready!";
     }
 
-    @Autowired
-    private com.duc.iot.iot_web_app.service.MqttService mqttService;
-
     @PostMapping("/api/device/{id}/control")
     @ResponseBody
-    public org.springframework.http.ResponseEntity<?> controlDevice(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> controlDevice(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
-        if (deviceOpt.isPresent()) {
-            Device device = deviceOpt.get();
-            // Topic expected by ESP32 to receive commands
-            String topic = "iot/device/control/" + device.getDeviceUid();
-            
-            try {
-                String jsonPayload = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(payload);
-                mqttService.publishCommand(topic, jsonPayload);
-                return org.springframework.http.ResponseEntity.ok().body(Map.of("status", "success", "message", "Command sent"));
-            } catch (com.fasterxml.jackson.core.JsonProcessingException | RuntimeException e) {
-                return org.springframework.http.ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
-            }
+        if (deviceOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        return org.springframework.http.ResponseEntity.notFound().build();
+        Device device = deviceOpt.get();
+        String topic = "iot/device/control/" + device.getDeviceUid();
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            mqttService.publishCommand(topic, jsonPayload);
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Command sent"));
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize command payload for device {}", id, e);
+            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", "Invalid payload format"));
+        } catch (RuntimeException e) {
+            log.error("Failed to publish command to device {}", id, e);
+            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
+        }
     }
 
     @GetMapping("/api/devices/all")
@@ -302,8 +312,8 @@ public class IotController {
                                 s.setDevice(device);
                                 s.setSensorType(Sensor.SensorType.CUSTOM);
                                 if (key.toLowerCase().contains("temp")) {
-                                    s.setSensorType(Sensor.SensorType.TEMPERATURE); 
-                                }else if (key.toLowerCase().contains("humi")) {
+                                    s.setSensorType(Sensor.SensorType.TEMPERATURE);
+                                } else if (key.toLowerCase().contains("humi")) {
                                     s.setSensorType(Sensor.SensorType.HUMIDITY);
                                 }
                                 s = sensorRepository.save(s);
@@ -331,7 +341,7 @@ public class IotController {
 
         data.put("deviceId", deviceId);
         data.put("status", "ONLINE");
-        System.out.println("Broadcasting to /topic/telemetry-updates: " + data);
+        log.info("Broadcasting telemetry update for device {}", deviceId);
         messagingTemplate.convertAndSend("/topic/telemetry-updates", (Object) data);
 
         return "OK";
@@ -351,13 +361,14 @@ public class IotController {
         java.io.PrintWriter writer = response.getWriter();
         writer.write('\ufeff'); // UTF-8 BOM for Excel
 
-        // Cấu trúc cột như yêu cầu: Ngày, Thời gian, Tên cảm biến, Độ ẩm đất, Độ ẩm không khí, Nhiệt độ
+        // Cấu trúc cột: Ngày, Thời gian, Tên cảm biến, Độ ẩm đất, Độ ẩm không khí, Nhiệt độ
         writer.println("Ngày,Thời gian,Tên cảm biến,Độ ẩm đất,Độ ẩm không khí,Nhiệt độ");
 
         Device device = deviceOpt.get();
         if (device.getSensors() != null) {
             // Group readings by time (truncate to seconds to match readings that arrived together)
-            java.util.Map<java.time.LocalDateTime, java.util.Map<String, Double>> groupedReadings = new java.util.TreeMap<>(java.util.Collections.reverseOrder());
+            java.util.Map<java.time.LocalDateTime, java.util.Map<String, Double>> groupedReadings =
+                    new java.util.TreeMap<>(java.util.Collections.reverseOrder());
 
             for (Sensor s : device.getSensors()) {
                 List<SensorReading> readings = readingRepository.findBySensorIdOrderByRecordedAtDesc(s.getId());
