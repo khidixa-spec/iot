@@ -126,11 +126,13 @@ public class MqttService implements MqttCallback {
                 if (value.isNumber()) {
                     String sensorName = key;
                     Sensor.SensorType type = Sensor.SensorType.CUSTOM;
-                    if (key.equals("temperature")) { sensorName = "Nhiệt độ"; type = Sensor.SensorType.TEMPERATURE; }
-                    else if (key.equals("humidity")) { sensorName = "Độ ẩm không khí"; type = Sensor.SensorType.HUMIDITY; }
-                    else if (key.equals("soil")) { sensorName = "Độ ẩm đất"; }
-                    else if (key.equals("soil1")) { sensorName = "Độ ẩm đất 1"; }
-                    else if (key.equals("soil2")) { sensorName = "Độ ẩm đất 2"; }
+                    switch (key) {
+                        case "temperature" -> { sensorName = "Nhiệt độ"; type = Sensor.SensorType.TEMPERATURE; }
+                        case "humidity" -> { sensorName = "Độ ẩm không khí"; type = Sensor.SensorType.HUMIDITY; }
+                        case "soil" -> { sensorName = "Độ ẩm đất"; }
+                        case "soil1" -> { sensorName = "Độ ẩm đất 1"; }
+                        case "soil2" -> { sensorName = "Độ ẩm đất 2"; }
+                    }
                     
                     newReadings.add(createReading(device, sensorName, type, value.asDouble(), payloadTime));
                     objectNode.put(sensorName, value.asDouble());
